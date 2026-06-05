@@ -1,0 +1,293 @@
+{
+  "info": {
+    "name": "Athlete Recovery API v1",
+    "description": "Complete API collection for the Athlete Recovery SaaS platform.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",      "value": "http://localhost:5000/api/v1" },
+    { "key": "accessToken",  "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "athleteId",    "value": "" }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Register - Athlete",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "if (pm.response.code === 201) {",
+            "  const d = pm.response.json().data;",
+            "  pm.collectionVariables.set('accessToken', d.tokens.accessToken);",
+            "  pm.collectionVariables.set('refreshToken', d.tokens.refreshToken);",
+            "}"
+          ], "type": "text/javascript" }}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"athlete@example.com\",\n  \"password\": \"Password123\",\n  \"role\": \"athlete\"\n}" }
+          }
+        },
+        {
+          "name": "Register - Physiotherapist",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Dr. Sarah Smith\",\n  \"email\": \"physio@example.com\",\n  \"password\": \"Password123\",\n  \"role\": \"physiotherapist\"\n}" }
+          }
+        },
+        {
+          "name": "Register - Coach",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Coach Mike\",\n  \"email\": \"coach@example.com\",\n  \"password\": \"Password123\",\n  \"role\": \"coach\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "if (pm.response.code === 200) {",
+            "  const d = pm.response.json().data;",
+            "  pm.collectionVariables.set('accessToken', d.tokens.accessToken);",
+            "  pm.collectionVariables.set('refreshToken', d.tokens.refreshToken);",
+            "}"
+          ], "type": "text/javascript" }}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"athlete@example.com\",\n  \"password\": \"Password123\"\n}" }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/refresh",
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" }
+          }
+        },
+        {
+          "name": "Get Me (from token)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/auth/change-password",
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Password123\",\n  \"newPassword\": \"NewPassword456\"\n}" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Users",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/users/me"
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/users/me",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Updated\"\n}" }
+          }
+        },
+        {
+          "name": "Upload Avatar",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/users/me/avatar",
+            "body": { "mode": "formdata", "formdata": [{ "key": "avatar", "type": "file", "src": "" }] }
+          }
+        },
+        {
+          "name": "List Users (Coach/Physio)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/users?role=athlete&page=1&limit=10", "query": [
+              { "key": "role", "value": "athlete" },
+              { "key": "page", "value": "1" },
+              { "key": "limit", "value": "10" }
+            ]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏃 Athletes",
+      "item": [
+        {
+          "name": "Get My Athlete Profile",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "if (pm.response.code === 200) {",
+            "  const d = pm.response.json().data;",
+            "  pm.collectionVariables.set('athleteId', d.profile._id);",
+            "}"
+          ], "type": "text/javascript" }}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/athletes/me"
+          }
+        },
+        {
+          "name": "Update My Athlete Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/athletes/me",
+            "body": { "mode": "raw", "raw": "{\n  \"sport\": \"Football\",\n  \"team\": \"City FC\",\n  \"position\": \"Midfielder\",\n  \"age\": 24,\n  \"height\": 178,\n  \"weight\": 75,\n  \"recoveryStatus\": \"active\",\n  \"emergencyContact\": {\n    \"name\": \"Jane Doe\",\n    \"relationship\": \"Spouse\",\n    \"phone\": \"+1234567890\",\n    \"email\": \"jane@example.com\"\n  }\n}" }
+          }
+        },
+        {
+          "name": "Add Injury",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/athletes/me/injuries",
+            "body": { "mode": "raw", "raw": "{\n  \"bodyPart\": \"Left Knee\",\n  \"description\": \"ACL strain during training\",\n  \"severity\": \"moderate\",\n  \"dateOccurred\": \"2024-10-15\"\n}" }
+          }
+        },
+        {
+          "name": "List Athletes (Coach/Physio)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/athletes?recoveryStatus=recovering&page=1&limit=10", "query": [
+              { "key": "recoveryStatus", "value": "recovering" },
+              { "key": "page", "value": "1" },
+              { "key": "limit", "value": "10" }
+            ]}
+          }
+        },
+        {
+          "name": "Get Athlete by ID (Coach/Physio)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/athletes/{{athleteId}}"
+          }
+        },
+        {
+          "name": "Update Readiness Score (Physio)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/athletes/{{athleteId}}/readiness",
+            "body": { "mode": "raw", "raw": "{\n  \"score\": 82.5\n}" }
+          }
+        },
+        {
+          "name": "Assign Physio (Coach)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/athletes/{{athleteId}}/assign-physio",
+            "body": { "mode": "raw", "raw": "{\n  \"physioId\": \"<physio_user_id>\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/notifications?isRead=false&page=1&limit=20", "query": [
+              { "key": "isRead", "value": "false" },
+              { "key": "page", "value": "1" },
+              { "key": "limit", "value": "20" }
+            ]}
+          }
+        },
+        {
+          "name": "Mark All As Read",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/notifications/read-all"
+          }
+        },
+        {
+          "name": "Mark One As Read",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/notifications/<notification_id>/read"
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/notifications/<notification_id>"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🩺 Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    }
+  ]
+}

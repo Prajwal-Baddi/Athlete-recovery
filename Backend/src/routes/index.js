@@ -1,18 +1,19 @@
 const express = require('express');
-const router  = express.Router();
+const router = express.Router();
 
-const authRoutes         = require('./authRoutes');
-const userRoutes         = require('./userRoutes');
-const athleteRoutes      = require('./athleteRoutes');
+const authRoutes = require('./authRoutes');
+const userRoutes = require('./userRoutes');
+const athleteRoutes = require('./athleteRoutes');
 const notificationRoutes = require('./notificationRoutes');
+
+const recoveryRoutes = require('./recoveryRoutes');
+const wellnessRoutes = require('./wellnessRoutes');
 
 /**
  * API v1 route registry.
- * All modules are mounted here so other developers can
- * see the complete API surface in one place.
  */
 
-// Health check — no auth required
+// Health Check
 router.get('/health', (req, res) => {
   res.json({
     success: true,
@@ -23,29 +24,61 @@ router.get('/health', (req, res) => {
   });
 });
 
-router.use('/auth',          authRoutes);
-router.use('/users',         userRoutes);
-router.use('/athletes',      athleteRoutes);
+/*
+|--------------------------------------------------------------------------
+| Core Modules
+|--------------------------------------------------------------------------
+*/
+
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/athletes', athleteRoutes);
 router.use('/notifications', notificationRoutes);
 
-// ─── Integration stubs for future modules ────────────────────────────────────
-// These routes will be implemented by other developers.
-// Stubs here ensure consistent URL structure.
+/*
+|--------------------------------------------------------------------------
+| Recovery Module
+|--------------------------------------------------------------------------
+|
+| Endpoints:
+| /api/recovery/plans
+| /api/recovery/exercises
+| /api/recovery/progress
+|
+*/
 
-router.use('/recovery-plans', (req, res) => {
-  res.status(501).json({ success: false, message: 'Recovery Plans module not yet implemented' });
-});
+router.use('/recovery', recoveryRoutes);
 
-router.use('/wellness-logs', (req, res) => {
-  res.status(501).json({ success: false, message: 'Wellness Logs module not yet implemented' });
-});
+/*
+|--------------------------------------------------------------------------
+| Wellness Module
+|--------------------------------------------------------------------------
+|
+| Endpoints:
+| /api/wellness
+|
+*/
+
+router.use('/wellness', wellnessRoutes);
+
+/*
+|--------------------------------------------------------------------------
+| Future Modules
+|--------------------------------------------------------------------------
+*/
 
 router.use('/ai-insights', (req, res) => {
-  res.status(501).json({ success: false, message: 'AI Insights module not yet implemented' });
+  res.status(501).json({
+    success: false,
+    message: 'AI Insights module not yet implemented',
+  });
 });
 
 router.use('/reports', (req, res) => {
-  res.status(501).json({ success: false, message: 'Reports module not yet implemented' });
+  res.status(501).json({
+    success: false,
+    message: 'Reports module not yet implemented',
+  });
 });
 
 module.exports = router;

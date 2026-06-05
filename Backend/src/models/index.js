@@ -1,28 +1,25 @@
 /**
- * Models barrel export.
- * Import all Mongoose models from one place.
- *
- * Usage: const { User, AthleteProfile, Notification } = require('../models');
+ * Models barrel export
  */
+
+const User = require('./User');
+const AthleteProfile = require('./AthleteProfile');
+const Notification = require('./Notification');
 
 const RecoveryPlan = require('./RecoveryPlan');
 const RehabExercise = require('./RehabExercise');
 const RecoveryProgress = require('./RecoveryProgress');
-const recoveryRoutes = require('./recoveryRoutes');
+
+const WellnessLog = require('./WellnessLog');
 
 module.exports = {
-  User:           require('./User'),
-  AthleteProfile: require('./AthleteProfile'),
-  Notification:   require('./Notification'),
-};
+  User,
+  AthleteProfile,
+  Notification,
 
-module.exports = {
   RecoveryPlan,
   RehabExercise,
   RecoveryProgress,
-};
 
-router.use(
-  '/recovery',
-  recoveryRoutes
-);
+  WellnessLog,
+};

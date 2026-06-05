@@ -3,11 +3,22 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
+
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 
+// Athlete
 import AthleteDashboard from './pages/athlete/AthleteDashboard';
+import AthleteWellness from './pages/athlete/AthleteWellness';
+import AthleteInjuries from './pages/athlete/AthleteInjuries';
+import AthleteTimeline from './pages/athlete/AthleteTimeline';
+import AthleteReports from './pages/athlete/AthleteReports';
+import AthleteAI from './pages/athlete/AthleteAISuggestions';
+
+// Coach
 import CoachDashboard from './pages/coach/CoachDashboard';
+
+// Physio
 import PhysioDashboard from './pages/physio/PhysioDashboard';
 
 function RoleRouter() {
@@ -41,11 +52,19 @@ function RoleRouter() {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
 
-      {/* Unauthorized */}
+      {/* ================= PUBLIC ================= */}
+
+      <Route
+        path="/login"
+        element={<LoginPage />}
+      />
+
+      <Route
+        path="/register"
+        element={<RegisterPage />}
+      />
+
       <Route
         path="/unauthorized"
         element={
@@ -61,7 +80,8 @@ function AppRoutes() {
         }
       />
 
-      {/* Root */}
+      {/* ================= ROOT ================= */}
+
       <Route
         path="/"
         element={
@@ -71,7 +91,8 @@ function AppRoutes() {
         }
       />
 
-      {/* Athlete */}
+      {/* ================= ATHLETE ================= */}
+
       <Route
         path="/athlete/dashboard"
         element={
@@ -81,7 +102,53 @@ function AppRoutes() {
         }
       />
 
-      {/* Coach */}
+      <Route
+        path="/athlete/wellness"
+        element={
+          <ProtectedRoute roles={['athlete']}>
+            <AthleteWellness />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/athlete/injuries"
+        element={
+          <ProtectedRoute roles={['athlete']}>
+            <AthleteInjuries />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/athlete/timeline"
+        element={
+          <ProtectedRoute roles={['athlete']}>
+            <AthleteTimeline />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/athlete/reports"
+        element={
+          <ProtectedRoute roles={['athlete']}>
+            <AthleteReports />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/athlete/ai"
+        element={
+          <ProtectedRoute roles={['athlete']}>
+            <AthleteAI />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ================= COACH ================= */}
+
       <Route
         path="/coach/dashboard"
         element={
@@ -91,7 +158,8 @@ function AppRoutes() {
         }
       />
 
-      {/* Physio */}
+      {/* ================= PHYSIO ================= */}
+
       <Route
         path="/physio/dashboard"
         element={
@@ -101,16 +169,13 @@ function AppRoutes() {
         }
       />
 
-      <Route
-  path="/register"
-  element={<RegisterPage />}
-/>
+      {/* ================= FALLBACK ================= */}
 
-      {/* Catch all */}
       <Route
         path="*"
         element={<Navigate to="/" replace />}
       />
+
     </Routes>
   );
 }

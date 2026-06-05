@@ -108,3 +108,17 @@
     50%      { opacity:.5; transform:scale(1.2); }
   }
 }
+.card-glow-green {
+  box-shadow:
+    0 0 30px rgba(34,197,94,.15);
+}
+
+.card-glow-blue {
+  box-shadow:
+    0 0 30px rgba(59,130,246,.15);
+}
+
+.card-glow-purple {
+  box-shadow:
+    0 0 30px rgba(168,85,247,.15);
+}

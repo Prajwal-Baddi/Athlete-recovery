@@ -1,5 +1,6 @@
 import { useAthletes } from '../../services/athleteService';
 import { useAuth } from '../../context/AuthContext';
+import DashboardLayout from '../../components/layout/DashboardLayout';
 
 const SEVERITY_COLOR = {
   minor: '#22c55e',
@@ -36,6 +37,7 @@ export default function PhysioDashboard() {
     ).length ?? 0;
 
   return (
+    <DashboardLayout>
     <div className="dash">
       <header className="dash-header">
         <h1>Physiotherapist Dashboard</h1>
@@ -134,6 +136,11 @@ export default function PhysioDashboard() {
               athlete?.name ||
               'Unknown Athlete';
 
+              const r =
+  typeof athlete.readinessScore === 'object'
+    ? athlete.readinessScore?.value ?? 0
+    : athlete.readinessScore ?? 0;
+
             const readiness =
               athlete?.readinessScore?.value ?? 0;
 
@@ -196,6 +203,7 @@ export default function PhysioDashboard() {
 
       <DashStyles />
     </div>
+    </DashboardLayout>
   );
 }
 

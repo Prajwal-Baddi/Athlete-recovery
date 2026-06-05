@@ -78,14 +78,18 @@ export const AuthProvider = ({ children }) => {
   };
 
   const clearAuth = () => {
-    applyToken(null);
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
 
-    setUser(null);
-    setRole(null);
-    setIsAuthenticated(false);
+  delete api.defaults.headers.common.Authorization;
 
-    disconnectSocket();
-  };
+  setAccessToken(null);
+  setUser(null);
+  setRole(null);
+  setIsAuthenticated(false);
+
+  disconnectSocket();
+};
 
   const fetchCurrentUser = useCallback(async () => {
     try {
@@ -186,14 +190,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    try {
-      await api.post('/auth/logout');
-    } catch {
-      // ignore
-    }
-
+  try {
+    await api.post('/auth/logout');
+  } catch (error) {
+    console.error('Logout error:', error);
+  } finally {
     clearAuth();
-  };
+  }
+};
 
   useEffect(() => {
     const init = async () => {
@@ -228,16 +232,18 @@ export const AuthProvider = ({ children }) => {
   }, [fetchCurrentUser]);
 
   const value = {
-    user,
-    accessToken,
-    role,
-    loading,
-    isAuthenticated,
-    login,
-    logout,
-    refreshToken,
-    fetchCurrentUser,
-  };
+  user,
+  accessToken,
+  role,
+  loading,
+  isAuthenticated,
+
+  login,
+  logout,
+
+  refreshToken,
+  fetchCurrentUser,
+};
 
   return (
     <AuthContext.Provider value={value}>

@@ -2,109 +2,243 @@
  * athleteService.js
  * React Query hooks for athlete-related endpoints.
  */
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
+
 import api from './api';
 
-// ─── Keys ──────────────────────────────────────────────────────────────────
+// ======================================================
+// Query Keys
+// ======================================================
+
 export const athleteKeys = {
-  me:   () => ['athlete', 'me'],
+  me: () => ['athlete', 'me'],
   list: () => ['athletes'],
   detail: (id) => ['athletes', id],
 };
+
+// ======================================================
+// Athlete Profile (Logged In Athlete)
+// ======================================================
 
 export const useMyAthleteProfile = () =>
   useQuery({
     queryKey: athleteKeys.me(),
     queryFn: async () => {
-      console.log('CALLING /athletes/me');
-
       const response = await api.get('/athletes/me');
 
-      console.log('API RESPONSE:', response.data);
+      console.log(
+        'ATHLETE PROFILE RESPONSE:',
+        response.data
+      );
 
-      return response.data.data.profile;
+      return (
+        response?.data?.data?.profile ||
+        response?.data?.profile ||
+        response?.data?.data ||
+        null
+      );
     },
   });
 
 export const useUpdateMyAthleteProfile = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (payload) => api.patch('/athletes/me', payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: athleteKeys.me() }),
+    mutationFn: (payload) =>
+      api.patch('/athletes/me', payload),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.me(),
+      });
+    },
   });
 };
 
-// ─── Injuries ──────────────────────────────────────────────────────────────
+// ======================================================
+// Injuries
+// ======================================================
+
 export const useAddInjury = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (injury) => api.post('/athletes/me/injuries', injury),
-    onSuccess: () => qc.invalidateQueries({ queryKey: athleteKeys.me() }),
+    mutationFn: (injury) =>
+      api.post('/athletes/me/injuries', injury),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.me(),
+      });
+    },
   });
 };
 
 export const useUpdateInjury = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ injuryId, ...payload }) => api.patch(`/athletes/me/injuries/${injuryId}`, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: athleteKeys.me() }),
+    mutationFn: ({ injuryId, ...payload }) =>
+      api.patch(
+        `/athletes/me/injuries/${injuryId}`,
+        payload
+      ),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.me(),
+      });
+    },
   });
 };
 
 export const useResolveInjury = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (injuryId) => api.patch(`/athletes/me/injuries/${injuryId}/resolve`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: athleteKeys.me() }),
+    mutationFn: (injuryId) =>
+      api.patch(
+        `/athletes/me/injuries/${injuryId}/resolve`
+      ),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.me(),
+      });
+    },
   });
 };
 
-// ─── All athletes (coach / physiotherapist role) ──────────────────────────
+// ======================================================
+// Coach / Physio - All Athletes
+// ======================================================
+
 export const useAthletes = () =>
   useQuery({
     queryKey: athleteKeys.list(),
+
     queryFn: async () => {
-      const { data } = await api.get('/athletes');
-      return data.data ?? data;
+      const response = await api.get('/athletes');
+
+      console.log(
+        'ATHLETES RESPONSE:',
+        response.data
+      );
+
+      return (
+        response?.data?.data?.athletes ||
+        response?.data?.data ||
+        []
+      );
     },
   });
 
 export const useAthlete = (athleteId) =>
   useQuery({
     queryKey: athleteKeys.detail(athleteId),
+
     queryFn: async () => {
-      const { data } = await api.get(`/athletes/${athleteId}`);
-      return data.data ?? data;
+      const response = await api.get(
+        `/athletes/${athleteId}`
+      );
+
+      return (
+        response?.data?.data?.athlete ||
+        response?.data?.data ||
+        null
+      );
     },
+
     enabled: Boolean(athleteId),
   });
 
-// ─── Admin / coach mutations ───────────────────────────────────────────────
+// ======================================================
+// Coach Actions
+// ======================================================
+
 export const useUpdateReadiness = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ athleteId, ...payload }) => api.patch(`/athletes/${athleteId}/readiness`, payload),
-    onSuccess: (_d, { athleteId }) => {
-      qc.invalidateQueries({ queryKey: athleteKeys.detail(athleteId) });
-      qc.invalidateQueries({ queryKey: athleteKeys.list() });
+    mutationFn: ({ athleteId, ...payload }) =>
+      api.patch(
+        `/athletes/${athleteId}/readiness`,
+        payload
+      ),
+
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.detail(
+          variables.athleteId
+        ),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.list(),
+      });
     },
   });
 };
 
 export const useAssignPhysio = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ athleteId, physiotherapistId }) =>
-      api.patch(`/athletes/${athleteId}/assign-physio`, { physiotherapistId }),
-    onSuccess: (_d, { athleteId }) => qc.invalidateQueries({ queryKey: athleteKeys.detail(athleteId) }),
+    mutationFn: ({
+      athleteId,
+      physiotherapistId,
+    }) =>
+      api.patch(
+        `/athletes/${athleteId}/assign-physio`,
+        {
+          physiotherapistId,
+        }
+      ),
+
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.detail(
+          variables.athleteId
+        ),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.list(),
+      });
+    },
   });
 };
 
 export const useAssignCoach = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ athleteId, coachId }) =>
-      api.patch(`/athletes/${athleteId}/assign-coach`, { coachId }),
-    onSuccess: (_d, { athleteId }) => qc.invalidateQueries({ queryKey: athleteKeys.detail(athleteId) }),
+    mutationFn: ({
+      athleteId,
+      coachId,
+    }) =>
+      api.patch(
+        `/athletes/${athleteId}/assign-coach`,
+        {
+          coachId,
+        }
+      ),
+
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.detail(
+          variables.athleteId
+        ),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: athleteKeys.list(),
+      });
+    },
   });
 };

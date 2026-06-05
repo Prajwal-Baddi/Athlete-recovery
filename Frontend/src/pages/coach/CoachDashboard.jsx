@@ -1,10 +1,22 @@
 import { useAthletes } from '../../services/athleteService';
 import { useAuth } from '../../context/AuthContext';
+import DashboardLayout from '../../components/layout/DashboardLayout';
 
 const READINESS_COLOR = (score) => {
   if (score >= 80) return '#22c55e';
   if (score >= 50) return '#f59e0b';
   return '#ef4444';
+};
+
+const getReadinessValue = (readinessScore) => {
+  if (
+    typeof readinessScore === 'object' &&
+    readinessScore !== null
+  ) {
+    return readinessScore.value ?? 0;
+  }
+
+  return readinessScore ?? 0;
 };
 
 export default function CoachDashboard() {
@@ -15,12 +27,19 @@ export default function CoachDashboard() {
   if (isError)   return <ErrorState />;
 
   const totalAthletes = athletes?.length ?? 0;
-  const avgReadiness  = totalAthletes
-    ? Math.round(athletes.reduce((acc, a) => acc + (a.readinessScore ?? 0), 0) / totalAthletes)
-    : 0;
+  const avgReadiness = totalAthletes
+  ? Math.round(
+      athletes.reduce(
+        (acc, athlete) =>
+          acc + getReadinessValue(athlete.readinessScore),
+        0
+      ) / totalAthletes
+    )
+  : 0;
   const totalInjured  = athletes?.filter((a) => (a.injuries ?? []).some((i) => i.status !== 'resolved')).length ?? 0;
 
   return (
+    <DashboardLayout>
     <div className="dash">
       <header className="dash-header">
         <h1>Coach Dashboard</h1>
@@ -32,7 +51,14 @@ export default function CoachDashboard() {
         <StatCard label="Total Athletes"    value={totalAthletes} color="#0ea5e9" icon="👥" />
         <StatCard label="Avg Readiness"     value={`${avgReadiness}%`} color={READINESS_COLOR(avgReadiness)} icon="⚡" />
         <StatCard label="Athletes Injured"  value={totalInjured} color="#ef4444" icon="🩹" />
-        <StatCard label="Fully Ready"       value={athletes?.filter(a => (a.readinessScore ?? 0) >= 80).length ?? 0} color="#22c55e" icon="✅" />
+        <StatCard label="Fully Ready"       value={
+  athletes?.filter(
+    athlete =>
+      getReadinessValue(
+        athlete.readinessScore
+      ) >= 80
+  ).length ?? 0
+} color="#22c55e" icon="✅" />
       </div>
 
       {/* Athletes table */}
@@ -55,7 +81,9 @@ export default function CoachDashboard() {
             <tbody>
               {athletes.map((athlete) => {
                 const activeInj = (athlete.injuries ?? []).filter((i) => i.status !== 'resolved');
-                const r = athlete.readinessScore ?? 0;
+                const r = getReadinessValue(
+  athlete.readinessScore
+);
                 const rc = READINESS_COLOR(r);
                 const status = activeInj.length > 0 ? 'Injured' : r >= 80 ? 'Ready' : 'Recovering';
                 const statusColor = activeInj.length > 0 ? '#ef4444' : r >= 80 ? '#22c55e' : '#f59e0b';
@@ -94,6 +122,7 @@ export default function CoachDashboard() {
 
       <DashStyles />
     </div>
+    </DashboardLayout>
   );
 }
 

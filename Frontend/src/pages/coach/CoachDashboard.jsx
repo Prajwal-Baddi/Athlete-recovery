@@ -80,15 +80,33 @@ export default function CoachDashboard() {
             </thead>
             <tbody>
               {athletes.map((athlete) => {
-                const activeInj = (athlete.injuries ?? []).filter((i) => i.status !== 'resolved');
-                const r = getReadinessValue(
+const activeInj =
+  athlete.activeInjuryCount ?? 0;
+
+const r = getReadinessValue(
   athlete.readinessScore
 );
-                const rc = READINESS_COLOR(r);
-                const status = activeInj.length > 0 ? 'Injured' : r >= 80 ? 'Ready' : 'Recovering';
-                const statusColor = activeInj.length > 0 ? '#ef4444' : r >= 80 ? '#22c55e' : '#f59e0b';
-                const name = `${athlete.user?.firstName ?? athlete.firstName ?? ''} ${athlete.user?.lastName ?? athlete.lastName ?? ''}`.trim() || athlete._id;
-                return (
+
+const rc = READINESS_COLOR(r);
+
+const status =
+  activeInj > 0
+    ? 'Injured'
+    : r >= 80
+    ? 'Ready'
+    : 'Recovering';
+
+const statusColor =
+  activeInj > 0
+    ? '#ef4444'
+    : r >= 80
+    ? '#22c55e'
+    : '#f59e0b';
+const name =
+  athlete.athleteName ||
+  athlete.userId?.name ||
+  athlete.name ||
+  'Unknown Athlete';                return (
                   <tr key={athlete._id}>
                     <td className="name-cell">{name}</td>
                     <td>{athlete.sport ?? '—'}</td>
@@ -99,7 +117,7 @@ export default function CoachDashboard() {
                         <span style={{ color: rc }}>{r}%</span>
                       </div>
                     </td>
-                    <td>{activeInj.length}</td>
+                    <td>{activeInj}</td>
                     <td><span className="badge" style={{ background: statusColor + '22', color: statusColor }}>{status}</span></td>
                   </tr>
                 );

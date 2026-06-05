@@ -1,205 +1,441 @@
 const AthleteProfile = require('../models/AthleteProfile');
 const User = require('../models/User');
 const AppError = require('../utils/AppError');
-const { getPaginationParams, buildPaginationMeta, buildSortOptions } = require('../utils/helpers');
+const {
+  getPaginationParams,
+  buildPaginationMeta,
+  buildSortOptions,
+} = require('../utils/helpers');
 
 /**
- * AthleteService — all athlete profile business logic.
+ * AthleteService
  */
 
-/**
- * Get the AthleteProfile for a given userId.
- * Creates one if it doesn't exist (idempotent).
- */
+/* -------------------------------------------------------------------------- */
+/*                                GET PROFILE                                 */
+/* -------------------------------------------------------------------------- */
+
 const getProfileByUserId = async (userId) => {
   let profile = await AthleteProfile.findOne({ userId })
-    .populate('userId', 'name email avatar')
+    .populate('userId', 'name email avatar role')
     .populate('assignedPhysio', 'name email')
     .populate('assignedCoach', 'name email');
 
   if (!profile) {
     profile = await AthleteProfile.create({ userId });
-    await profile.populate('userId', 'name email avatar');
+
+    await profile.populate(
+      'userId',
+      'name email avatar role'
+    );
   }
+
   return profile;
 };
 
-/**
- * Get a profile by AthleteProfile._id (used in cross-module refs).
- */
 const getProfileById = async (profileId) => {
   const profile = await AthleteProfile.findById(profileId)
-    .populate('userId', 'name email avatar')
+    .populate('userId', 'name email avatar role')
     .populate('assignedPhysio', 'name email')
     .populate('assignedCoach', 'name email');
 
-  if (!profile) throw AppError.notFound('Athlete profile not found');
+  if (!profile) {
+    throw AppError.notFound(
+      'Athlete profile not found'
+    );
+  }
+
   return profile;
 };
 
-/**
- * Update athlete profile fields.
- */
-const updateProfile = async (userId, updates) => {
+/* -------------------------------------------------------------------------- */
+/*                              UPDATE PROFILE                                */
+/* -------------------------------------------------------------------------- */
+
+const updateProfile = async (
+  userId,
+  updates
+) => {
   const allowedFields = [
-    'sport', 'team', 'position', 'age', 'height', 'weight',
-    'recoveryStatus', 'emergencyContact', 'notes', 'tags',
+    'sport',
+    'team',
+    'position',
+    'age',
+    'height',
+    'weight',
+    'recoveryStatus',
+    'emergencyContact',
+    'notes',
+    'tags',
   ];
 
   const sanitized = {};
-  allowedFields.forEach((f) => {
-    if (updates[f] !== undefined) sanitized[f] = updates[f];
+
+  allowedFields.forEach((field) => {
+    if (
+      updates[field] !== undefined
+    ) {
+      sanitized[field] =
+        updates[field];
+    }
   });
 
-  const profile = await AthleteProfile.findOneAndUpdate(
-    { userId },
-    { $set: sanitized },
-    { new: true, runValidators: true, upsert: true }
-  ).populate('userId', 'name email avatar');
+  const profile =
+    await AthleteProfile.findOneAndUpdate(
+      { userId },
+      {
+        $set: sanitized,
+      },
+      {
+        new: true,
+        runValidators: true,
+        upsert: true,
+      }
+    ).populate(
+      'userId',
+      'name email avatar role'
+    );
 
   return profile;
 };
 
-/**
- * Add an injury record to an athlete's profile.
- */
-const addInjury = async (userId, injuryData) => {
-  const profile = await AthleteProfile.findOne({ userId });
-  if (!profile) throw AppError.notFound('Athlete profile not found');
+/* -------------------------------------------------------------------------- */
+/*                                  INJURIES                                  */
+/* -------------------------------------------------------------------------- */
 
-  profile.injuries.push(injuryData);
+const addInjury = async (
+  userId,
+  injuryData
+) => {
+  const profile =
+    await AthleteProfile.findOne({
+      userId,
+    });
 
-  // Auto-update recovery status if injury is severe
-  if (injuryData.severity === 'severe') {
-    profile.recoveryStatus = 'injured';
-  } else if (profile.recoveryStatus === 'active') {
-    profile.recoveryStatus = 'recovering';
+  if (!profile) {
+    throw AppError.notFound(
+      'Athlete profile not found'
+    );
   }
 
-  await profile.save();
-  return profile;
-};
-
-/**
- * Update an existing injury by its subdoc _id.
- */
-const updateInjury = async (userId, injuryId, updates) => {
-  const profile = await AthleteProfile.findOne({ userId });
-  if (!profile) throw AppError.notFound('Athlete profile not found');
-
-  const injury = profile.injuries.id(injuryId);
-  if (!injury) throw AppError.notFound('Injury record not found');
-
-  Object.assign(injury, updates);
-  await profile.save();
-  return profile;
-};
-
-/**
- * Resolve (close) an active injury.
- */
-const resolveInjury = async (userId, injuryId) => {
-  const profile = await AthleteProfile.findOne({ userId });
-  if (!profile) throw AppError.notFound('Athlete profile not found');
-
-  const injury = profile.injuries.id(injuryId);
-  if (!injury) throw AppError.notFound('Injury record not found');
-
-  injury.isActive = false;
-  injury.dateResolved = new Date();
-
-  // If no more active injuries, clear status
-  const stillActive = profile.injuries.some((i) => i.isActive && i._id.toString() !== injuryId);
-  if (!stillActive) profile.recoveryStatus = 'cleared';
-
-  await profile.save();
-  return profile;
-};
-
-/**
- * Update readiness score (called by AI module).
- * AI module passes { value: number } to this service.
- */
-const updateReadinessScore = async (athleteProfileId, score) => {
-  if (score < 0 || score > 100) throw AppError.badRequest('Readiness score must be 0–100');
-
-  const profile = await AthleteProfile.findByIdAndUpdate(
-    athleteProfileId,
-    {
-      $set: {
-        'readinessScore.value':       score,
-        'readinessScore.lastUpdated': new Date(),
-      },
-    },
-    { new: true }
+  profile.injuries.push(
+    injuryData
   );
 
-  if (!profile) throw AppError.notFound('Athlete profile not found');
-  return profile;
-};
-
-/**
- * Assign a physiotherapist to an athlete.
- */
-const assignPhysio = async (athleteProfileId, physioUserId) => {
-  // Validate physio exists and has correct role
-  const physio = await User.findById(physioUserId);
-  if (!physio || physio.role !== 'physiotherapist') {
-    throw AppError.badRequest('Invalid physiotherapist ID');
+  if (
+    injuryData.severity ===
+    'severe'
+  ) {
+    profile.recoveryStatus =
+      'injured';
+  } else if (
+    profile.recoveryStatus ===
+    'active'
+  ) {
+    profile.recoveryStatus =
+      'recovering';
   }
 
-  const profile = await AthleteProfile.findByIdAndUpdate(
-    athleteProfileId,
-    { $set: { assignedPhysio: physioUserId } },
-    { new: true }
-  ).populate('assignedPhysio', 'name email');
+  await profile.save();
 
-  if (!profile) throw AppError.notFound('Athlete profile not found');
   return profile;
 };
 
-/**
- * Assign a coach to an athlete.
- */
-const assignCoach = async (athleteProfileId, coachUserId) => {
-  const coach = await User.findById(coachUserId);
-  if (!coach || coach.role !== 'coach') {
-    throw AppError.badRequest('Invalid coach ID');
+const updateInjury = async (
+  userId,
+  injuryId,
+  updates
+) => {
+  const profile =
+    await AthleteProfile.findOne({
+      userId,
+    });
+
+  if (!profile) {
+    throw AppError.notFound(
+      'Athlete profile not found'
+    );
   }
 
-  const profile = await AthleteProfile.findByIdAndUpdate(
-    athleteProfileId,
-    { $set: { assignedCoach: coachUserId } },
-    { new: true }
-  ).populate('assignedCoach', 'name email');
+  const injury =
+    profile.injuries.id(
+      injuryId
+    );
 
-  if (!profile) throw AppError.notFound('Athlete profile not found');
+  if (!injury) {
+    throw AppError.notFound(
+      'Injury record not found'
+    );
+  }
+
+  Object.assign(
+    injury,
+    updates
+  );
+
+  await profile.save();
+
   return profile;
 };
 
-/**
- * List all athletes — with filtering and pagination.
- */
+const resolveInjury = async (
+  userId,
+  injuryId
+) => {
+  const profile =
+    await AthleteProfile.findOne({
+      userId,
+    });
+
+  if (!profile) {
+    throw AppError.notFound(
+      'Athlete profile not found'
+    );
+  }
+
+  const injury =
+    profile.injuries.id(
+      injuryId
+    );
+
+  if (!injury) {
+    throw AppError.notFound(
+      'Injury record not found'
+    );
+  }
+
+  injury.isActive = false;
+  injury.dateResolved =
+    new Date();
+
+  const stillActive =
+    profile.injuries.some(
+      (i) =>
+        i.isActive &&
+        i._id.toString() !==
+          injuryId
+    );
+
+  if (!stillActive) {
+    profile.recoveryStatus =
+      'cleared';
+  }
+
+  await profile.save();
+
+  return profile;
+};
+
+/* -------------------------------------------------------------------------- */
+/*                              READINESS SCORE                               */
+/* -------------------------------------------------------------------------- */
+
+const updateReadinessScore =
+  async (
+    athleteProfileId,
+    score
+  ) => {
+    if (
+      score < 0 ||
+      score > 100
+    ) {
+      throw AppError.badRequest(
+        'Readiness score must be between 0 and 100'
+      );
+    }
+
+    const profile =
+      await AthleteProfile.findByIdAndUpdate(
+        athleteProfileId,
+        {
+          $set: {
+            'readinessScore.value':
+              score,
+            'readinessScore.lastUpdated':
+              new Date(),
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+    if (!profile) {
+      throw AppError.notFound(
+        'Athlete profile not found'
+      );
+    }
+
+    return profile;
+  };
+
+/* -------------------------------------------------------------------------- */
+/*                               ASSIGN PHYSIO                                */
+/* -------------------------------------------------------------------------- */
+
+const assignPhysio =
+  async (
+    athleteProfileId,
+    physioUserId
+  ) => {
+    const physio =
+      await User.findById(
+        physioUserId
+      );
+
+    if (
+      !physio ||
+      physio.role !==
+        'physiotherapist'
+    ) {
+      throw AppError.badRequest(
+        'Invalid physiotherapist'
+      );
+    }
+
+    const profile =
+      await AthleteProfile.findByIdAndUpdate(
+        athleteProfileId,
+        {
+          $set: {
+            assignedPhysio:
+              physioUserId,
+          },
+        },
+        {
+          new: true,
+        }
+      ).populate(
+        'assignedPhysio',
+        'name email'
+      );
+
+    return profile;
+  };
+
+/* -------------------------------------------------------------------------- */
+/*                                ASSIGN COACH                                */
+/* -------------------------------------------------------------------------- */
+
+const assignCoach = async (
+  athleteProfileId,
+  coachUserId
+) => {
+  const coach =
+    await User.findById(
+      coachUserId
+    );
+
+  if (
+    !coach ||
+    coach.role !== 'coach'
+  ) {
+    throw AppError.badRequest(
+      'Invalid coach'
+    );
+  }
+
+  const profile =
+    await AthleteProfile.findByIdAndUpdate(
+      athleteProfileId,
+      {
+        $set: {
+          assignedCoach:
+            coachUserId,
+        },
+      },
+      {
+        new: true,
+      }
+    ).populate(
+      'assignedCoach',
+      'name email'
+    );
+
+  return profile;
+};
+
+/* -------------------------------------------------------------------------- */
+/*                               LIST ATHLETES                                */
+/* -------------------------------------------------------------------------- */
+
 const listAthletes = async (queryParams) => {
-  const { page, limit, skip } = getPaginationParams(queryParams);
-  const sort = buildSortOptions(queryParams.sort);
+  const { page, limit, skip } =
+    getPaginationParams(queryParams);
+
+  const sort =
+    buildSortOptions(queryParams.sort);
 
   const filter = {};
-  if (queryParams.recoveryStatus) filter.recoveryStatus = queryParams.recoveryStatus;
-  if (queryParams.sport)          filter.sport = new RegExp(queryParams.sport, 'i');
-  if (queryParams.assignedPhysio) filter.assignedPhysio = queryParams.assignedPhysio;
-  if (queryParams.assignedCoach)  filter.assignedCoach  = queryParams.assignedCoach;
 
-  const [athletes, total] = await Promise.all([
-    AthleteProfile.find(filter)
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .populate('userId', 'name email avatar'),
-    AthleteProfile.countDocuments(filter),
-  ]);
+  if (queryParams.recoveryStatus) {
+    filter.recoveryStatus =
+      queryParams.recoveryStatus;
+  }
 
-  return { athletes, pagination: buildPaginationMeta(total, page, limit) };
+  if (queryParams.sport) {
+    filter.sport =
+      new RegExp(queryParams.sport, 'i');
+  }
+
+  if (queryParams.assignedPhysio) {
+    filter.assignedPhysio =
+      queryParams.assignedPhysio;
+  }
+
+  if (queryParams.assignedCoach) {
+    filter.assignedCoach =
+      queryParams.assignedCoach;
+  }
+
+  const [profiles, total] =
+    await Promise.all([
+      AthleteProfile.find(filter)
+        .populate({
+          path: 'userId',
+          select: 'name email role',
+        })
+        .populate({
+          path: 'assignedCoach',
+          select: 'name email',
+        })
+        .populate({
+          path: 'assignedPhysio',
+          select: 'name email',
+        })
+        .sort(sort)
+        .skip(skip)
+        .limit(limit),
+
+      AthleteProfile.countDocuments(filter),
+    ]);
+
+  const athletes =
+    profiles.map((profile) => {
+      const activeInjuryCount =
+        profile.injuries?.filter(
+          (injury) => injury.isActive
+        ).length || 0;
+
+      return {
+        ...profile.toObject(),
+
+        athleteName:
+          profile.userId?.name ||
+          'Unknown Athlete',
+
+        activeInjuryCount,
+      };
+    });
+
+  return {
+    athletes,
+    pagination: buildPaginationMeta(
+      total,
+      page,
+      limit
+    ),
+  };
 };
 
 module.exports = {

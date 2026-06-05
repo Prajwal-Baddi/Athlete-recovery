@@ -123,18 +123,25 @@ export const useAthletes = () =>
     queryKey: athleteKeys.list(),
 
     queryFn: async () => {
-      const response = await api.get('/athletes');
+      const response =
+        await api.get('/athletes');
 
       console.log(
-        'ATHLETES RESPONSE:',
+        'FULL RESPONSE:',
         response.data
       );
 
-      return (
+      const athletes =
         response?.data?.data?.athletes ||
         response?.data?.data ||
-        []
+        [];
+
+      console.log(
+        'FIRST ATHLETE:',
+        athletes[0]
       );
+
+      return athletes;
     },
   });
 

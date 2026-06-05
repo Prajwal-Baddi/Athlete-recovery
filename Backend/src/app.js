@@ -66,9 +66,18 @@ if (process.env.NODE_ENV !== 'test') {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/v1', routes);
+const aiCallRoutes =
+  require('./routes/aiCallRoutes');
+
+app.use(
+  '/api/v1/ai-calls',
+  aiCallRoutes
+);
 
 // ─── Error handling (must be last) ────────────────────────────────────────────
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
+
+
 
 module.exports = app;

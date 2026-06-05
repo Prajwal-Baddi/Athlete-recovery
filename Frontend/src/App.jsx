@@ -4,6 +4,7 @@ import { AppProvider } from './context/AppContext';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
 import AthleteDashboard from './pages/athlete/AthleteDashboard';
 import CoachDashboard from './pages/coach/CoachDashboard';
@@ -42,6 +43,7 @@ function AppRoutes() {
     <Routes>
       {/* Public */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       {/* Unauthorized */}
       <Route
@@ -98,6 +100,11 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+  path="/register"
+  element={<RegisterPage />}
+/>
 
       {/* Catch all */}
       <Route

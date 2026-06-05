@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const ROLE_ROUTES = {
   athlete: '/athlete/dashboard',
@@ -106,6 +107,13 @@ export default function LoginPage() {
               'Sign In'
             )}
           </button>
+
+          <Link
+  to="/register"
+  className="text-emerald-400"
+>
+  Create Account
+</Link>
         </form>
       </div>
 

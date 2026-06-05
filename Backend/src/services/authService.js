@@ -16,30 +16,78 @@ const logger = require('../utils/logger');
  *
  * @returns {{ user, tokens }}
  */
-const register = async ({ name, email, password, role }) => {
-  const existing = await User.findOne({ email });
+const register = async ({
+  name,
+  email,
+  password,
+  role,
+}) => {
+  const existing = await User.findOne({
+    email,
+  });
+
   if (existing) {
-    throw AppError.conflict('An account with this email already exists');
+    throw AppError.conflict(
+      'An account with this email already exists'
+    );
   }
 
-  const user = await User.create({ name, email, password, role });
+  const user = await User.create({
+    name,
+    email,
+    password,
+    role,
+  });
 
-  // Auto-create athlete profile skeleton so downstream modules have a target
+  /*
+  |--------------------------------------------------------------------------
+  | Auto Create Athlete Profile
+  |--------------------------------------------------------------------------
+  */
+
   if (role === 'athlete') {
-    await AthleteProfile.create({ userId: user._id });
+    await AthleteProfile.create({
+      userId: user._id,
+
+      readinessScore: {
+        value: 100,
+      },
+
+      recoveryStatus: 'active',
+
+      injuries: [],
+
+      tags: ['new-athlete'],
+    });
   }
 
-  const payload = buildTokenPayload(user);
-  const tokens  = generateTokenPair(payload);
+  const payload =
+    buildTokenPayload(user);
 
-  // Persist hashed refresh token
-  user.refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
-  user.lastLogin = new Date();
-  await user.save({ validateBeforeSave: false });
+  const tokens =
+    generateTokenPair(payload);
 
-  logger.info(`New user registered: ${user.email} (${role})`);
+  user.refreshToken =
+    await bcrypt.hash(
+      tokens.refreshToken,
+      10
+    );
 
-  return { user: user.toSafeObject(), tokens };
+  user.lastLogin =
+    new Date();
+
+  await user.save({
+    validateBeforeSave: false,
+  });
+
+  logger.info(
+    `New user registered: ${user.email} (${role})`
+  );
+
+  return {
+    user: user.toSafeObject(),
+    tokens,
+  };
 };
 
 /**

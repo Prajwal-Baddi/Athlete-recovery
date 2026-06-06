@@ -21,7 +21,7 @@ import CoachTrainingLoad from './pages/coach/CoachTrainingLoad';
 import CoachAnalytics from './pages/coach/CoachAnalytics';
 import CoachReports from './pages/coach/CoachReports';
 import CoachAIInsights from './pages/coach/CoachAIInsights';
-
+import AthleteAICall from './pages/athlete/AthleteAICall';
 // Coach
 import CoachDashboard from './pages/coach/CoachDashboard';
 
@@ -153,6 +153,15 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+  path="/athlete/call"
+  element={
+    <ProtectedRoute roles={['athlete']}>
+      <AthleteAICall />
+    </ProtectedRoute>
+  }
+/>
 
       {/* ================= COACH ================= */}
 

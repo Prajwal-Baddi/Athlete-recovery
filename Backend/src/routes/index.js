@@ -8,10 +8,7 @@ const notificationRoutes = require('./notificationRoutes');
 
 const recoveryRoutes = require('./recoveryRoutes');
 const wellnessRoutes = require('./wellnessRoutes');
-
-/**
- * API v1 route registry.
- */
+const aiCallRoutes = require('./aiCallRoutes'); // ADD THIS
 
 // Health Check
 router.get('/health', (req, res) => {
@@ -37,29 +34,27 @@ router.use('/notifications', notificationRoutes);
 
 /*
 |--------------------------------------------------------------------------
-| Recovery Module
+| Recovery
 |--------------------------------------------------------------------------
-|
-| Endpoints:
-| /api/recovery/plans
-| /api/recovery/exercises
-| /api/recovery/progress
-|
 */
 
 router.use('/recovery', recoveryRoutes);
 
 /*
 |--------------------------------------------------------------------------
-| Wellness Module
+| Wellness
 |--------------------------------------------------------------------------
-|
-| Endpoints:
-| /api/wellness
-|
 */
 
 router.use('/wellness', wellnessRoutes);
+
+/*
+|--------------------------------------------------------------------------
+| AI Calling
+|--------------------------------------------------------------------------
+*/
+
+router.use('/ai-calls', aiCallRoutes);
 
 /*
 |--------------------------------------------------------------------------

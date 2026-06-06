@@ -8,9 +8,12 @@
  *   const { getProfileById } = require('./services/athleteService');
  */
 
+const aiCallRoutes = require('./aiCallRoutes');
+
 module.exports = {
   authService:         require('./authService'),
   userService:         require('./userService'),
   athleteService:      require('./athleteService'),
   notificationService: require('./notificationService'),
+  router.use('/ai-calls', aiCallRoutes);
 };

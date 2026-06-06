@@ -20,12 +20,25 @@ const NAV = {
       ],
     },
     {
-      section: 'AI',
-      items: [
-        { path: '/athlete/ai', icon: '🤖', label: 'AI Suggestions' },
-        { path: '/athlete/reports', icon: '📄', label: 'Reports' },
-      ],
+  section: 'AI',
+  items: [
+    {
+      path: '/athlete/ai',
+      icon: '🤖',
+      label: 'AI Suggestions',
     },
+    {
+      path: '/athlete/call',
+      icon: '📞',
+      label: 'AI Recovery Call',
+    },
+    {
+      path: '/athlete/reports',
+      icon: '📄',
+      label: 'Reports',
+    },
+  ],
+},,
     {
       section: 'Account',
       items: [

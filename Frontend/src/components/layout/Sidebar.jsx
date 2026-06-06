@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useAppContext } from '@/context/AppContext'
 import { useAuth } from '@/context/AuthContext'
 
@@ -96,9 +96,9 @@ const NAV = {
 }
 
 const ROLE_META = {
-  athlete: { label: 'Athlete', color: '#00d4aa' },
-  coach: { label: 'Head Coach', color: '#4a9eff' },
-  physio: { label: 'Physiotherapist', color: '#a78bfa' },
+  athlete: { label: 'Athlete', color: '#10b981' },
+  coach: { label: 'Head Coach', color: '#3b82f6' },
+  physio: { label: 'Physiotherapist', color: '#8b5cf6' },
 }
 
 export default function Sidebar() {
@@ -123,27 +123,20 @@ export default function Sidebar() {
     <motion.aside
       animate={{ width: sidebarCollapsed ? 70 : 260 }}
       transition={{ duration: 0.25 }}
-      className="bg-apex-bg2 border-r border-apex-border flex flex-col h-full overflow-hidden"
+      className="bg-apex-bg flex-shrink-0 border-r border-apex-border flex flex-col h-full overflow-hidden"
     >
       {/* Logo */}
       <div
         className="p-4 border-b border-apex-border flex items-center gap-3 cursor-pointer"
         onClick={toggleSidebar}
       >
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{
-            background: `${meta.color}20`,
-            border: `1px solid ${meta.color}40`,
-          }}
-        >
-          ⚡
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white text-black font-bold text-lg">
+          $
         </div>
 
         {!sidebarCollapsed && (
           <div>
-            <div className="font-bold text-white">APEX</div>
-            <div className="text-xs text-apex-txt3">Recovery OS</div>
+            <div className="font-bold text-white text-lg tracking-tight">SalesOps</div>
           </div>
         )}
       </div>
@@ -151,9 +144,9 @@ export default function Sidebar() {
       {/* User */}
       {!sidebarCollapsed && (
         <div className="p-4 border-b border-apex-border">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-3">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold"
+              className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm"
               style={{
                 background: `${meta.color}20`,
                 color: meta.color,
@@ -163,10 +156,9 @@ export default function Sidebar() {
             </div>
 
             <div>
-              <div className="text-sm text-white font-semibold">
+              <div className="text-sm text-white font-medium">
                 {user?.name}
               </div>
-
               <div className="text-xs text-apex-txt3">
                 {user?.email}
               </div>
@@ -174,9 +166,9 @@ export default function Sidebar() {
           </div>
 
           <div
-            className="mt-3 px-2 py-1 rounded-lg text-xs inline-block"
+            className="px-2 py-0.5 rounded text-[10px] inline-block font-semibold uppercase tracking-wider border"
             style={{
-              background: `${meta.color}15`,
+              borderColor: `${meta.color}40`,
               color: meta.color,
             }}
           >
@@ -186,11 +178,11 @@ export default function Sidebar() {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-3">
+      <nav className="flex-1 overflow-y-auto p-3 mt-2">
         {navSections.map((section) => (
-          <div key={section.section} className="mb-4">
+          <div key={section.section} className="mb-6">
             {!sidebarCollapsed && (
-              <div className="text-[10px] uppercase tracking-widest text-apex-txt3 mb-2 px-2">
+              <div className="text-[11px] font-semibold tracking-wider text-apex-txt3 mb-2 px-3">
                 {section.section}
               </div>
             )}
@@ -202,18 +194,12 @@ export default function Sidebar() {
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all mb-1"
-                  style={{
-                    background: active
-                      ? `${meta.color}15`
-                      : 'transparent',
-                    color: active ? meta.color : '',
-                  }}
+                  className={active ? 'nav-item-active w-full' : 'nav-item w-full text-apex-txt2'}
                 >
-                  <span>{item.icon}</span>
+                  <span className="opacity-80">{item.icon}</span>
 
                   {!sidebarCollapsed && (
-                    <span className="text-sm">
+                    <span className="text-sm tracking-wide">
                       {item.label}
                     </span>
                   )}
@@ -226,7 +212,7 @@ export default function Sidebar() {
 
       <button
         onClick={toggleSidebar}
-        className="m-3 p-2 rounded-lg border border-apex-border"
+        className="m-3 p-2 rounded-lg border border-apex-border text-apex-txt2 hover:text-white transition-colors"
       >
         {sidebarCollapsed ? '▶' : '◀'}
       </button>

@@ -23,31 +23,39 @@ export default function WellnessChart({
       >
         <LineChart data={data}>
           <CartesianGrid
-            stroke="#1f2937"
+            stroke="#27272a"
           />
 
-          <XAxis dataKey="date" />
+          <XAxis dataKey="date" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} />
 
-          <YAxis />
+          <YAxis stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} />
 
-          <Tooltip />
+          <Tooltip 
+            contentStyle={{ backgroundColor: '#121214', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+          />
 
           <Line
             type="monotone"
             dataKey="recoveryScore"
-            stroke="#22c55e"
+            stroke="#10b981"
+            strokeWidth={2}
+            dot={false}
           />
 
           <Line
             type="monotone"
             dataKey="hrv"
-            stroke="#06b6d4"
+            stroke="#0ea5e9"
+            strokeWidth={2}
+            dot={false}
           />
 
           <Line
             type="monotone"
             dataKey="sleepHours"
             stroke="#3b82f6"
+            strokeWidth={2}
+            dot={false}
           />
         </LineChart>
       </ResponsiveContainer>

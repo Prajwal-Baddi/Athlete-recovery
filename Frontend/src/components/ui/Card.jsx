@@ -12,9 +12,8 @@ export default function Card({
   return (
     <motion.div
       className={cn(
-        'bg-apex-bg2 border border-apex-border rounded-apex-lg p-4 transition-colors duration-200',
+        'bg-apex-bg2 border border-apex-border rounded-apex p-5 shadow-apex-card transition-colors duration-200',
         hover && 'hover:border-apex-border2',
-        glow && 'animate-glow-pulse',
         className,
       )}
       style={style}
@@ -31,8 +30,8 @@ export function CardHeader({ title, sub, right }) {
   return (
     <div className="flex items-start justify-between mb-4">
       <div>
-        <h3 className="font-display text-[13px] font-semibold text-white">{title}</h3>
-        {sub && <p className="text-[11px] text-apex-txt2 mt-0.5">{sub}</p>}
+        <h3 className="font-display text-[14px] font-semibold text-white tracking-tight">{title}</h3>
+        {sub && <p className="text-[12px] text-apex-txt2 mt-0.5">{sub}</p>}
       </div>
       {right && <div className="flex-shrink-0 ml-2">{right}</div>}
     </div>

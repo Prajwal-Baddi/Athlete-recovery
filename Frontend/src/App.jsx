@@ -17,9 +17,17 @@ import AthleteAI from './pages/athlete/AthleteAISuggestions';
 
 // Coach
 import CoachDashboard from './pages/coach/CoachDashboard';
+import CoachReports from './pages/coach/CoachReports';
+import CoachAI from './pages/coach/CoachAI';
 
 // Physio
 import PhysioDashboard from './pages/physio/PhysioDashboard';
+import PhysioInjuries from './pages/physio/PhysioInjuries';
+import PhysioRehab from './pages/physio/PhysioRehab';
+import PhysioRTP from './pages/physio/PhysioRTP';
+import PhysioPain from './pages/physio/PhysioPain';
+import PhysioReports from './pages/physio/PhysioReports';
+import PhysioAI from './pages/physio/PhysioAI';
 
 function RoleRouter() {
   const { role } = useAuth();
@@ -158,6 +166,24 @@ function AppRoutes() {
         }
       />
 
+      <Route
+        path="/coach/reports"
+        element={
+          <ProtectedRoute roles={['coach']}>
+            <CoachReports />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/coach/ai"
+        element={
+          <ProtectedRoute roles={['coach']}>
+            <CoachAI />
+          </ProtectedRoute>
+        }
+      />
+
       {/* ================= PHYSIO ================= */}
 
       <Route
@@ -165,6 +191,60 @@ function AppRoutes() {
         element={
           <ProtectedRoute roles={['physiotherapist']}>
             <PhysioDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/physio/injuries"
+        element={
+          <ProtectedRoute roles={['physiotherapist']}>
+            <PhysioInjuries />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/physio/rehab"
+        element={
+          <ProtectedRoute roles={['physiotherapist']}>
+            <PhysioRehab />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/physio/rtp"
+        element={
+          <ProtectedRoute roles={['physiotherapist']}>
+            <PhysioRTP />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/physio/pain"
+        element={
+          <ProtectedRoute roles={['physiotherapist']}>
+            <PhysioPain />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/physio/reports"
+        element={
+          <ProtectedRoute roles={['physiotherapist']}>
+            <PhysioReports />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/physio/ai"
+        element={
+          <ProtectedRoute roles={['physiotherapist']}>
+            <PhysioAI />
           </ProtectedRoute>
         }
       />

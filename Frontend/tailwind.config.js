@@ -9,38 +9,32 @@ export default {
       },
       colors: {
         apex: {
-          bg:      '#0a0e1a',
-          bg2:     '#0f1526',
-          bg3:     '#131d32',
-          bg4:     '#182038',
-          border:  'rgba(255,255,255,0.07)',
-          border2: 'rgba(255,255,255,0.12)',
-          green:   '#00d4aa',
-          blue:    '#4a9eff',
-          amber:   '#ffb347',
-          red:     '#ff5f6d',
-          purple:  '#a78bfa',
-          cyan:    '#22d3ee',
-          txt:     '#e8edf7',
-          txt2:    '#8892a4',
-          txt3:    '#4a5568',
+          bg:      '#000000',
+          bg2:     '#09090b', // Card backgrounds
+          bg3:     '#121214', // Stat cards, subtle items
+          bg4:     '#18181b', // Hover states
+          border:  'rgba(255, 255, 255, 0.1)',
+          border2: 'rgba(255, 255, 255, 0.15)',
+          green:   '#10b981', // Emerald 500
+          blue:    '#3b82f6', // Blue 500
+          amber:   '#f59e0b', // Amber 500
+          red:     '#ef4444', // Red 500
+          purple:  '#8b5cf6', // Violet 500
+          cyan:    '#0ea5e9', // Sky 500 / Cyan
+          txt:     '#f8fafc', // Slate 50
+          txt2:    '#a1a1aa', // Zinc 400
+          txt3:    '#71717a', // Zinc 500
         },
       },
       borderRadius: {
-        'apex': '10px',
-        'apex-lg': '14px',
-        'apex-xl': '18px',
-      },
-      backgroundImage: {
-        'apex-glow-green': 'radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 70%)',
-        'apex-glow-blue':  'radial-gradient(circle, rgba(74,158,255,0.08) 0%, transparent 70%)',
+        'apex': '8px',
+        'apex-lg': '12px',
+        'apex-xl': '16px',
       },
       animation: {
         'fade-up':    'fadeUp 0.35s ease both',
         'pulse-dot':  'pulseDot 2s ease-in-out infinite',
         'shimmer':    'shimmer 1.5s infinite',
-        'spin-slow':  'spin 2s linear infinite',
-        'glow-pulse': 'glowPulse 3s ease-in-out infinite',
       },
       keyframes: {
         fadeUp: {
@@ -55,15 +49,10 @@ export default {
           '0%':   { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition:  '200% 0' },
         },
-        glowPulse: {
-          '0%,100%': { boxShadow: '0 0 12px rgba(0,212,170,0.15)' },
-          '50%':     { boxShadow: '0 0 28px rgba(0,212,170,0.35)' },
-        },
       },
       boxShadow: {
-        'apex-green': '0 0 20px rgba(0,212,170,0.15)',
-        'apex-card':  '0 4px 24px rgba(0,0,0,0.4)',
-        'apex-modal': '0 20px 60px rgba(0,0,0,0.7)',
+        'apex-card':  '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        'apex-modal': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
       },
     },
   },

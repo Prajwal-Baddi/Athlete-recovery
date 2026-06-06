@@ -7,6 +7,7 @@ const AthleteProfile = require('./AthleteProfile');
 const Notification = require('./Notification');
 
 const RecoveryPlan = require('./RecoveryPlan');
+const RecoveryCase = require('./RecoveryCase');
 const RehabExercise = require('./RehabExercise');
 const RecoveryProgress = require('./RecoveryProgress');
 
@@ -18,6 +19,7 @@ module.exports = {
   Notification,
 
   RecoveryPlan,
+  RecoveryCase,
   RehabExercise,
   RecoveryProgress,
 

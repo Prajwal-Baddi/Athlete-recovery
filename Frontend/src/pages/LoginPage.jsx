@@ -44,24 +44,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="login-logo">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <circle cx="18" cy="18" r="18" fill="#0ea5e9" fillOpacity="0.15" />
-              <path d="M18 8C12.477 8 8 12.477 8 18s4.477 10 10 10 10-4.477 10-10S23.523 8 18 8zm0 4a6 6 0 110 12A6 6 0 0118 12z" fill="#0ea5e9" />
-              <circle cx="18" cy="18" r="3" fill="#0ea5e9" />
+    <div className="min-h-screen flex items-center justify-center bg-apex-bg p-4 font-sans">
+      <div className="card w-full max-w-[400px]">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center mb-4">
+            <svg width="48" height="48" viewBox="0 0 36 36" fill="none">
+              <circle cx="18" cy="18" r="18" fill="#10b981" fillOpacity="0.15" />
+              <path d="M18 8C12.477 8 8 12.477 8 18s4.477 10 10 10 10-4.477 10-10S23.523 8 18 8zm0 4a6 6 0 110 12A6 6 0 0118 12z" fill="#10b981" />
+              <circle cx="18" cy="18" r="3" fill="#10b981" />
             </svg>
           </div>
-          <h1>Athlete Recovery</h1>
-          <p>Sign in to your dashboard</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">APEX Recovery OS</h1>
+          <p className="text-sm text-apex-txt3">Sign in to your dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           {error && (
-            <div className="login-error" role="alert">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-400 mb-5" role="alert">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
                 <circle cx="8" cy="8" r="7" stroke="#ef4444" strokeWidth="1.5" />
                 <path d="M8 5v3.5M8 11v.5" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
@@ -69,8 +69,10 @@ export default function LoginPage() {
             </div>
           )}
 
-          <div className="field">
-            <label htmlFor="email">Email</label>
+          <div className="mb-5">
+            <label htmlFor="email" className="block text-xs font-semibold text-apex-txt2 uppercase tracking-wide mb-2">
+              Email
+            </label>
             <input
               id="email"
               type="email"
@@ -80,11 +82,14 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               disabled={loading}
+              className="w-full bg-apex-bg border border-apex-border rounded-lg p-3 text-sm text-white placeholder-apex-txt3 focus:border-apex-green focus:outline-none focus:ring-1 focus:ring-apex-green transition-all disabled:opacity-60"
             />
           </div>
 
-          <div className="field">
-            <label htmlFor="password">Password</label>
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-xs font-semibold text-apex-txt2 uppercase tracking-wide mb-2">
+              Password
+            </label>
             <input
               id="password"
               type="password"
@@ -94,13 +99,21 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               disabled={loading}
+              className="w-full bg-apex-bg border border-apex-border rounded-lg p-3 text-sm text-white placeholder-apex-txt3 focus:border-apex-green focus:outline-none focus:ring-1 focus:ring-apex-green transition-all disabled:opacity-60"
             />
           </div>
 
-          <button type="submit" className="login-btn" disabled={loading}>
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 bg-apex-green hover:bg-emerald-600 text-white font-semibold rounded-lg p-3 text-sm transition-colors disabled:opacity-70 mt-2"
+          >
             {loading ? (
               <>
-                <span className="spinner" aria-hidden="true" />
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
                 Signing in…
               </>
             ) : (
@@ -108,125 +121,16 @@ export default function LoginPage() {
             )}
           </button>
 
-          <Link
-  to="/register"
-  className="text-emerald-400"
->
-  Create Account
-</Link>
+          <div className="mt-6 text-center">
+            <Link
+              to="/register"
+              className="text-sm font-medium text-apex-green hover:text-emerald-400 transition-colors"
+            >
+              Create Account
+            </Link>
+          </div>
         </form>
       </div>
-
-      <style>{`
-        .login-page {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #0f172a;
-          font-family: 'Inter', system-ui, sans-serif;
-          padding: 1rem;
-        }
-        .login-card {
-          background: #1e293b;
-          border: 1px solid #334155;
-          border-radius: 16px;
-          padding: 2.5rem;
-          width: 100%;
-          max-width: 400px;
-          box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
-        }
-        .login-header {
-          text-align: center;
-          margin-bottom: 2rem;
-        }
-        .login-logo {
-          display: inline-flex;
-          margin-bottom: 1rem;
-        }
-        .login-header h1 {
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: #f1f5f9;
-          margin: 0 0 0.25rem;
-          letter-spacing: -0.025em;
-        }
-        .login-header p {
-          color: #94a3b8;
-          font-size: 0.875rem;
-          margin: 0;
-        }
-        .login-error {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: rgba(239,68,68,0.1);
-          border: 1px solid rgba(239,68,68,0.3);
-          border-radius: 8px;
-          padding: 0.75rem 1rem;
-          color: #fca5a5;
-          font-size: 0.875rem;
-          margin-bottom: 1.25rem;
-        }
-        .field {
-          margin-bottom: 1.25rem;
-        }
-        .field label {
-          display: block;
-          font-size: 0.8125rem;
-          font-weight: 600;
-          color: #cbd5e1;
-          margin-bottom: 0.5rem;
-          letter-spacing: 0.025em;
-          text-transform: uppercase;
-        }
-        .field input {
-          width: 100%;
-          background: #0f172a;
-          border: 1px solid #334155;
-          border-radius: 8px;
-          padding: 0.75rem 1rem;
-          color: #f1f5f9;
-          font-size: 0.9375rem;
-          outline: none;
-          transition: border-color 0.15s, box-shadow 0.15s;
-          box-sizing: border-box;
-        }
-        .field input::placeholder { color: #475569; }
-        .field input:focus {
-          border-color: #0ea5e9;
-          box-shadow: 0 0 0 3px rgba(14,165,233,0.15);
-        }
-        .field input:disabled { opacity: 0.6; cursor: not-allowed; }
-        .login-btn {
-          width: 100%;
-          margin-top: 0.5rem;
-          background: #0ea5e9;
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          padding: 0.875rem;
-          font-size: 0.9375rem;
-          font-weight: 600;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          transition: background 0.15s, opacity 0.15s;
-        }
-        .login-btn:hover:not(:disabled) { background: #0284c7; }
-        .login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
-        .spinner {
-          width: 16px; height: 16px;
-          border: 2px solid rgba(255,255,255,0.3);
-          border-top-color: #fff;
-          border-radius: 50%;
-          animation: spin 0.7s linear infinite;
-          display: inline-block;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
     </div>
   );
 }

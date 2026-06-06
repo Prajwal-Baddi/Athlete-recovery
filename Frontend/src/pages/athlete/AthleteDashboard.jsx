@@ -307,7 +307,7 @@ function DashStyles() {
     <style>{`
       .dash {
         padding: 24px;
-        color: #f8fafc;
+        color: #f4f4f5;
       }
 
       .dash-header {
@@ -316,13 +316,14 @@ function DashStyles() {
 
       .dash-header h1 {
         margin: 0;
-        font-size: 32px;
+        font-size: 28px;
         font-weight: 700;
+        letter-spacing: -0.025em;
       }
 
       .subtitle {
         margin-top: 8px;
-        color: #94a3b8;
+        color: #71717a;
       }
 
       .cards {
@@ -333,9 +334,9 @@ function DashStyles() {
       }
 
       .stat-card {
-        background: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 14px;
+        background: #121214;
+        border: 1px solid #27272a;
+        border-radius: 12px;
         padding: 18px;
         display: flex;
         gap: 14px;
@@ -343,30 +344,32 @@ function DashStyles() {
       }
 
       .stat-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 12px;
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 22px;
+        font-size: 20px;
       }
 
       .stat-value {
-        font-size: 28px;
+        font-size: 26px;
         font-weight: 700;
       }
 
       .stat-label {
-        color: #94a3b8;
-        font-size: 12px;
+        color: #71717a;
+        font-size: 11px;
         text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.05em;
       }
 
       .section {
-        background: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 14px;
+        background: #121214;
+        border: 1px solid #27272a;
+        border-radius: 12px;
         padding: 20px;
         margin-bottom: 20px;
       }
@@ -374,12 +377,13 @@ function DashStyles() {
       .section h2 {
         margin-top: 0;
         margin-bottom: 16px;
-        color: #cbd5e1;
-        font-size: 18px;
+        color: #a1a1aa;
+        font-size: 16px;
+        font-weight: 600;
       }
 
       .empty {
-        color: #94a3b8;
+        color: #71717a;
       }
 
       .injury-table {
@@ -390,13 +394,16 @@ function DashStyles() {
       .injury-table th {
         text-align: left;
         padding: 12px;
-        border-bottom: 1px solid #334155;
-        color: #94a3b8;
+        border-bottom: 1px solid #27272a;
+        color: #71717a;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
       }
 
       .injury-table td {
         padding: 12px;
-        border-bottom: 1px solid #334155;
+        border-bottom: 1px solid #27272a;
       }
 
       .badge {
@@ -408,6 +415,7 @@ function DashStyles() {
 
       .notes-cell {
         max-width: 250px;
+        color: #a1a1aa;
       }
 
       .care-team {
@@ -417,27 +425,29 @@ function DashStyles() {
       }
 
       .care-card {
-        background: #0f172a;
-        border: 1px solid #334155;
-        border-radius: 12px;
+        background: #0a0a0b;
+        border: 1px solid #27272a;
+        border-radius: 10px;
         padding: 16px;
       }
 
       .care-role {
-        color: #94a3b8;
-        font-size: 12px;
+        color: #71717a;
+        font-size: 11px;
         text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.05em;
       }
 
       .care-name {
         margin-top: 6px;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 600;
       }
 
       .care-email {
         margin-top: 6px;
-        color: #94a3b8;
+        color: #71717a;
         font-size: 13px;
       }
 
@@ -448,9 +458,9 @@ function DashStyles() {
       }
 
       .coming-soon-card {
-        background: #0f172a;
-        border: 1px dashed #334155;
-        border-radius: 12px;
+        background: #0a0a0b;
+        border: 1px dashed #27272a;
+        border-radius: 10px;
         padding: 18px;
         text-align: center;
       }
@@ -471,9 +481,10 @@ function DashStyles() {
         margin-top: 8px;
         padding: 4px 10px;
         border-radius: 999px;
-        background: #334155;
-        color: #cbd5e1;
-        font-size: 12px;
+        background: #27272a;
+        color: #a1a1aa;
+        font-size: 11px;
+        font-weight: 500;
       }
 
       .dash-loading,
@@ -487,8 +498,8 @@ function DashStyles() {
       .spinner {
         width: 40px;
         height: 40px;
-        border: 4px solid #334155;
-        border-top-color: #22c55e;
+        border: 4px solid #27272a;
+        border-top-color: #10b981;
         border-radius: 50%;
         animation: spin .8s linear infinite;
       }

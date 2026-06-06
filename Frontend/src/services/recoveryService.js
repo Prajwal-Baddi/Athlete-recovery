@@ -1,304 +1,79 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+/**
+ * recoveryService.js
+ * Axios service layer for recovery API endpoints
+ */
 
 import api from './api';
 
-/*
-|--------------------------------------------------------------------------
-| Query Keys
-|--------------------------------------------------------------------------
-*/
+// ═══════════════════════════════════════════════════════════════════════════
+// Recovery Cases
+// ═══════════════════════════════════════════════════════════════════════════
 
-export const recoveryKeys = {
-  plans: ['recovery-plans'],
-  exercises: ['recovery-exercises'],
-  progress: ['recovery-progress'],
+export const getRecoveryCases = (params) =>
+  api.get('/recovery/cases', { params });
 
-  plan: (id) => ['recovery-plan', id],
-  exercise: (id) => ['recovery-exercise', id],
-  progressEntry: (id) => ['recovery-progress-entry', id],
-};
+export const getRecoveryCaseById = (id) =>
+  api.get(`/recovery/cases/${id}`);
 
-/*
-|--------------------------------------------------------------------------
-| Recovery Plans
-|--------------------------------------------------------------------------
-*/
+export const getAthleteRecoveryCases = (athleteId) =>
+  api.get(`/recovery/athlete/${athleteId}`);
 
-export const useRecoveryPlans = () =>
-  useQuery({
-    queryKey: recoveryKeys.plans,
-    queryFn: async () => {
-      const { data } =
-        await api.get('/recovery/plans');
+export const createRecoveryCase = (data) =>
+  api.post('/recovery/cases', data);
 
-      return (
-        data?.data?.plans ||
-        data?.data ||
-        []
-      );
-    },
-  });
+export const updateRecoveryCase = (id, data) =>
+  api.patch(`/recovery/cases/${id}`, data);
 
-export const useRecoveryPlan = (id) =>
-  useQuery({
-    queryKey: recoveryKeys.plan(id),
+export const updateRecoveryPhase = (id, phase, notes) =>
+  api.patch(`/recovery/cases/${id}/phase`, { phase, notes });
 
-    queryFn: async () => {
-      const { data } =
-        await api.get(`/recovery/plans/${id}`);
+export const getRTPCandidates = (params) =>
+  api.get('/recovery/rtp-candidates', { params });
 
-      return (
-        data?.data?.plan ||
-        data?.data
-      );
-    },
+export const approveRTP = (id, notes) =>
+  api.post(`/recovery/cases/${id}/approve-rtp`, { notes });
 
-    enabled: !!id,
-  });
+// ═══════════════════════════════════════════════════════════════════════════
+// Recovery Progress
+// ═══════════════════════════════════════════════════════════════════════════
 
-export const useCreateRecoveryPlan = () => {
-  const qc = useQueryClient();
+export const getProgressEntries = (caseId, params) =>
+  api.get(`/recovery/${caseId}/progress`, { params });
 
-  return useMutation({
-    mutationFn: (payload) =>
-      api.post(
-        '/recovery/plans',
-        payload
-      ),
+export const createProgressEntry = (caseId, data) =>
+  api.post(`/recovery/${caseId}/progress`, data);
 
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.plans,
-      });
-    },
-  });
-};
+export const getPainTrend = (caseId, days) =>
+  api.get(`/recovery/${caseId}/pain-trend`, { params: { days } });
 
-export const useUpdateRecoveryPlan = () => {
-  const qc = useQueryClient();
+export const getRecoveryProgress = (caseId) =>
+  api.get(`/recovery/${caseId}/progress-summary`);
 
-  return useMutation({
-    mutationFn: ({ id, ...payload }) =>
-      api.patch(
-        `/recovery/plans/${id}`,
-        payload
-      ),
+// ═══════════════════════════════════════════════════════════════════════════
+// Exercises
+// ═══════════════════════════════════════════════════════════════════════════
 
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.plans,
-      });
-    },
-  });
-};
+export const getExercisesForCase = (caseId) =>
+  api.get(`/recovery/${caseId}/exercises`);
 
-export const useDeleteRecoveryPlan = () => {
-  const qc = useQueryClient();
+export const createExercise = (caseId, data) =>
+  api.post(`/recovery/${caseId}/exercises`, data);
 
-  return useMutation({
-    mutationFn: (id) =>
-      api.delete(
-        `/recovery/plans/${id}`
-      ),
+export const updateExercise = (exerciseId, data) =>
+  api.patch(`/recovery/exercises/${exerciseId}`, data);
 
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.plans,
-      });
-    },
-  });
-};
+export const completeExercise = (exerciseId, data) =>
+  api.post(`/recovery/exercises/${exerciseId}/complete`, data);
 
-/*
-|--------------------------------------------------------------------------
-| Rehab Exercises
-|--------------------------------------------------------------------------
-*/
+export const deleteExercise = (exerciseId) =>
+  api.delete(`/recovery/exercises/${exerciseId}`);
 
-export const useExercises = () =>
-  useQuery({
-    queryKey: recoveryKeys.exercises,
+// ═══════════════════════════════════════════════════════════════════════════
+// Analytics & Alerts
+// ═══════════════════════════════════════════════════════════════════════════
 
-    queryFn: async () => {
-      const { data } =
-        await api.get(
-          '/recovery/exercises'
-        );
+export const getAlerts = () =>
+  api.get('/recovery/alerts');
 
-      return (
-        data?.data?.exercises ||
-        data?.data ||
-        []
-      );
-    },
-  });
-
-export const useExercise = (id) =>
-  useQuery({
-    queryKey: recoveryKeys.exercise(id),
-
-    queryFn: async () => {
-      const { data } =
-        await api.get(
-          `/recovery/exercises/${id}`
-        );
-
-      return (
-        data?.data?.exercise ||
-        data?.data
-      );
-    },
-
-    enabled: !!id,
-  });
-
-export const useCreateExercise = () => {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload) =>
-      api.post(
-        '/recovery/exercises',
-        payload
-      ),
-
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.exercises,
-      });
-    },
-  });
-};
-
-export const useUpdateExercise = () => {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, ...payload }) =>
-      api.patch(
-        `/recovery/exercises/${id}`,
-        payload
-      ),
-
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.exercises,
-      });
-    },
-  });
-};
-
-export const useCompleteExercise = () => {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id) =>
-      api.patch(
-        `/recovery/exercises/${id}/complete`
-      ),
-
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.exercises,
-      });
-    },
-  });
-};
-
-export const useDeleteExercise = () => {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id) =>
-      api.delete(
-        `/recovery/exercises/${id}`
-      ),
-
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.exercises,
-      });
-    },
-  });
-};
-
-/*
-|--------------------------------------------------------------------------
-| Recovery Progress
-|--------------------------------------------------------------------------
-*/
-
-export const useProgressEntries = () =>
-  useQuery({
-    queryKey: recoveryKeys.progress,
-
-    queryFn: async () => {
-      const { data } =
-        await api.get(
-          '/recovery/progress'
-        );
-
-      return (
-        data?.data?.entries ||
-        data?.data ||
-        []
-      );
-    },
-  });
-
-export const useCreateProgressEntry = () => {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload) =>
-      api.post(
-        '/recovery/progress',
-        payload
-      ),
-
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.progress,
-      });
-    },
-  });
-};
-
-export const useUpdateProgressEntry = () => {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, ...payload }) =>
-      api.patch(
-        `/recovery/progress/${id}`,
-        payload
-      ),
-
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.progress,
-      });
-    },
-  });
-};
-
-export const useDeleteProgressEntry = () => {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id) =>
-      api.delete(
-        `/recovery/progress/${id}`
-      ),
-
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: recoveryKeys.progress,
-      });
-    },
-  });
-};
+export const getDashboardStats = () =>
+  api.get('/recovery/stats');

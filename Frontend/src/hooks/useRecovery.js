@@ -1,128 +1,320 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  recoveryService, teamService, injuryService,
-  aiService, notificationService,
-} from '../services/api'
+/**
+ * useRecovery.js
+ * React Query hooks for recovery operations
+ */
 
-// ─── DEMO ATHLETE ID (replace with auth context) ─────────────────────────────
-const DEMO_ATHLETE_ID = 'athlete_001'
-const DEMO_TEAM_ID    = 'team_001'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as recoveryService from '../services/recoveryService';
 
-// ─── RECOVERY HOOKS ──────────────────────────────────────────────────────────
-export function useRecoveryTrend(athleteId = DEMO_ATHLETE_ID, days = 7) {
-  return useQuery({
-    queryKey: ['recovery', 'trend', athleteId, days],
-    queryFn:  () => recoveryService.getTrend(athleteId, days).then(r => r.data),
+// ═══════════════════════════════════════════════════════════════════════════
+// Query Keys
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const recoveryKeys = {
+  all: ['recovery'],
+  cases: ['recovery', 'cases'],
+  case: (id) => ['recovery', 'cases', id],
+  exercises: (caseId) => ['recovery', 'exercises', caseId],
+  exercise: (id) => ['recovery', 'exercises', id],
+  progress: (caseId) => ['recovery', 'progress', caseId],
+  painTrend: (caseId) => ['recovery', 'pain-trend', caseId],
+  progressSummary: (caseId) => ['recovery', 'progress-summary', caseId],
+  rtp: ['recovery', 'rtp-candidates'],
+  alerts: ['recovery', 'alerts'],
+  stats: ['recovery', 'stats'],
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Recovery Cases
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Get all recovery cases with filters
+ */
+export const useRecoveryCases = (params = {}) =>
+  useQuery({
+    queryKey: recoveryKeys.cases,
+    queryFn: async () => {
+      const response = await recoveryService.getRecoveryCases(params);
+      return response?.data?.data || response?.data;
+    },
     staleTime: 1000 * 60 * 5,
-  })
-}
+  });
 
-export function useDailyScore(athleteId = DEMO_ATHLETE_ID) {
-  return useQuery({
-    queryKey: ['recovery', 'daily', athleteId],
-    queryFn:  () => recoveryService.getDailyScore(athleteId).then(r => r.data),
-    refetchInterval: 1000 * 60 * 10,
-  })
-}
+/**
+ * Get a specific recovery case
+ */
+export const useRecoveryCase = (id) =>
+  useQuery({
+    queryKey: recoveryKeys.case(id),
+    queryFn: async () => {
+      const response = await recoveryService.getRecoveryCaseById(id);
+      return response?.data?.data?.recoveryCase || response?.data?.data;
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  });
 
-export function useWellness(athleteId = DEMO_ATHLETE_ID) {
-  return useQuery({
-    queryKey: ['recovery', 'wellness', athleteId],
-    queryFn:  () => recoveryService.getWellness(athleteId).then(r => r.data),
-  })
-}
+/**
+ * Get recovery cases for an athlete
+ */
+export const useAthleteRecoveryCases = (athleteId) =>
+  useQuery({
+    queryKey: ['recovery', 'athlete', athleteId],
+    queryFn: async () => {
+      const response = await recoveryService.getAthleteRecoveryCases(athleteId);
+      return response?.data?.data?.cases || response?.data?.data;
+    },
+    enabled: !!athleteId,
+    staleTime: 1000 * 60 * 5,
+  });
 
-export function useWearables(athleteId = DEMO_ATHLETE_ID) {
-  return useQuery({
-    queryKey: ['wearables', athleteId],
-    queryFn:  () => recoveryService.getWearables(athleteId).then(r => r.data),
-    refetchInterval: 1000 * 30,
-  })
-}
+/**
+ * Create recovery case
+ */
+export const useCreateRecoveryCase = () => {
+  const queryClient = useQueryClient();
 
-export function useTimeline(athleteId = DEMO_ATHLETE_ID) {
-  return useQuery({
-    queryKey: ['timeline', athleteId],
-    queryFn:  () => recoveryService.getTimeline(athleteId).then(r => r.data),
-  })
-}
-
-export function usePostCheckin(athleteId = DEMO_ATHLETE_ID) {
-  const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data) => recoveryService.postCheckin(athleteId, data),
-    onSuccess:  () => { qc.invalidateQueries(['recovery', 'wellness', athleteId]) },
-  })
-}
+    mutationFn: (data) => recoveryService.createRecoveryCase(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.cases });
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.stats });
+    },
+  });
+};
 
-// ─── TEAM HOOKS ───────────────────────────────────────────────────────────────
-export function useTeamAthletes(teamId = DEMO_TEAM_ID) {
-  return useQuery({
-    queryKey: ['team', 'athletes', teamId],
-    queryFn:  () => teamService.getAthletes(teamId).then(r => r.data),
-  })
-}
+/**
+ * Update recovery case
+ */
+export const useUpdateRecoveryCase = () => {
+  const queryClient = useQueryClient();
 
-export function useTeamReadiness(teamId = DEMO_TEAM_ID) {
-  return useQuery({
-    queryKey: ['team', 'readiness', teamId],
-    queryFn:  () => teamService.getTeamReadiness(teamId).then(r => r.data),
+  return useMutation({
+    mutationFn: ({ id, data }) =>
+      recoveryService.updateRecoveryCase(id, data),
+    onSuccess: (response, { id }) => {
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.case(id) });
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.cases });
+    },
+  });
+};
+
+/**
+ * Update recovery phase
+ */
+export const useUpdateRecoveryPhase = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, phase, notes }) =>
+      recoveryService.updateRecoveryPhase(id, phase, notes),
+    onSuccess: (response, { id }) => {
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.case(id) });
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.cases });
+    },
+  });
+};
+
+/**
+ * Approve RTP
+ */
+export const useApproveRTP = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, notes }) => recoveryService.approveRTP(id, notes),
+    onSuccess: (response, { id }) => {
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.case(id) });
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.cases });
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.rtp });
+    },
+  });
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Recovery Progress
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Get progress entries
+ */
+export const useProgressEntries = (caseId, params = {}) =>
+  useQuery({
+    queryKey: recoveryKeys.progress(caseId),
+    queryFn: async () => {
+      const response = await recoveryService.getProgressEntries(caseId, params);
+      return response?.data?.data?.entries || response?.data?.data;
+    },
+    enabled: !!caseId,
+    staleTime: 1000 * 60 * 5,
+  });
+
+/**
+ * Create progress entry
+ */
+export const useCreateProgressEntry = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ caseId, data }) =>
+      recoveryService.createProgressEntry(caseId, data),
+    onSuccess: (response, { caseId }) => {
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.progress(caseId) });
+      queryClient.invalidateQueries({
+        queryKey: recoveryKeys.progressSummary(caseId),
+      });
+    },
+  });
+};
+
+/**
+ * Get pain trend
+ */
+export const usePainTrend = (caseId, days = 7) =>
+  useQuery({
+    queryKey: recoveryKeys.painTrend(caseId),
+    queryFn: async () => {
+      const response = await recoveryService.getPainTrend(caseId, days);
+      return response?.data?.data?.trend || response?.data?.data;
+    },
+    enabled: !!caseId,
+    staleTime: 1000 * 60 * 5,
+  });
+
+/**
+ * Get recovery progress summary
+ */
+export const useRecoveryProgress = (caseId) =>
+  useQuery({
+    queryKey: recoveryKeys.progressSummary(caseId),
+    queryFn: async () => {
+      const response = await recoveryService.getRecoveryProgress(caseId);
+      return response?.data?.data?.progress || response?.data?.data;
+    },
+    enabled: !!caseId,
+    staleTime: 1000 * 60 * 2,
+  });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Exercises
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Get exercises for case
+ */
+export const useExercises = (caseId) =>
+  useQuery({
+    queryKey: recoveryKeys.exercises(caseId),
+    queryFn: async () => {
+      const response = await recoveryService.getExercisesForCase(caseId);
+      return response?.data?.data?.exercises || response?.data?.data;
+    },
+    enabled: !!caseId,
+    staleTime: 1000 * 60 * 5,
+  });
+
+/**
+ * Create exercise
+ */
+export const useCreateExercise = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ caseId, data }) =>
+      recoveryService.createExercise(caseId, data),
+    onSuccess: (response, { caseId }) => {
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.exercises(caseId) });
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.case(caseId) });
+    },
+  });
+};
+
+/**
+ * Update exercise
+ */
+export const useUpdateExercise = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ exerciseId, data }) =>
+      recoveryService.updateExercise(exerciseId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.all });
+    },
+  });
+};
+
+/**
+ * Complete exercise
+ */
+export const useCompleteExercise = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ exerciseId, data }) =>
+      recoveryService.completeExercise(exerciseId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.all });
+    },
+  });
+};
+
+/**
+ * Delete exercise
+ */
+export const useDeleteExercise = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (exerciseId) => recoveryService.deleteExercise(exerciseId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: recoveryKeys.all });
+    },
+  });
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Analytics & Alerts
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Get RTP candidates
+ */
+export const useRTPCandidates = (params = {}) =>
+  useQuery({
+    queryKey: recoveryKeys.rtp,
+    queryFn: async () => {
+      const response = await recoveryService.getRTPCandidates(params);
+      return response?.data?.data?.candidates || response?.data?.data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+/**
+ * Get alerts
+ */
+export const useRecoveryAlerts = () =>
+  useQuery({
+    queryKey: recoveryKeys.alerts,
+    queryFn: async () => {
+      const response = await recoveryService.getAlerts();
+      return response?.data?.data?.alerts || response?.data?.data;
+    },
+    staleTime: 1000 * 60,
     refetchInterval: 1000 * 60 * 5,
-  })
-}
+  });
 
-export function useWeeklyLoad(teamId = DEMO_TEAM_ID) {
-  return useQuery({
-    queryKey: ['team', 'load', teamId],
-    queryFn:  () => teamService.getLoadTrend(teamId).then(r => r.data),
-  })
-}
-
-// ─── INJURY HOOKS ─────────────────────────────────────────────────────────────
-export function useActiveInjuries(teamId = DEMO_TEAM_ID) {
-  return useQuery({
-    queryKey: ['injuries', 'active', teamId],
-    queryFn:  () => injuryService.getActiveInjuries(teamId).then(r => r.data),
-  })
-}
-
-export function useInjuryAnalytics(teamId = DEMO_TEAM_ID) {
-  return useQuery({
-    queryKey: ['injuries', 'analytics', teamId],
-    queryFn:  () => injuryService.getInjuryAnalytics(teamId).then(r => r.data),
-  })
-}
-
-export function useRTPReadiness(athleteId) {
-  return useQuery({
-    queryKey: ['rtp', athleteId],
-    queryFn:  () => injuryService.getRTPReadiness(athleteId).then(r => r.data),
-    enabled:  !!athleteId,
-  })
-}
-
-// ─── AI HOOKS ─────────────────────────────────────────────────────────────────
-export function useAIInsights(athleteId = DEMO_ATHLETE_ID) {
-  return useQuery({
-    queryKey: ['ai', 'insights', athleteId],
-    queryFn:  () => aiService.getInsights(athleteId).then(r => r.data),
-    staleTime: 1000 * 60 * 15,
-  })
-}
-
-export function useGenerateReport(athleteId = DEMO_ATHLETE_ID) {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: () => aiService.generateReport(athleteId),
-    onSuccess:  () => { qc.invalidateQueries(['ai', 'insights', athleteId]) },
-  })
-}
-
-// ─── NOTIFICATION HOOKS ───────────────────────────────────────────────────────
-export function useNotifications(userId = DEMO_ATHLETE_ID) {
-  return useQuery({
-    queryKey: ['notifications', userId],
-    queryFn:  () => notificationService.getAll(userId).then(r => r.data),
-    refetchInterval: 1000 * 30,
-  })
-}
+/**
+ * Get dashboard stats
+ */
+export const useDashboardStats = () =>
+  useQuery({
+    queryKey: recoveryKeys.stats,
+    queryFn: async () => {
+      const response = await recoveryService.getDashboardStats();
+      return response?.data?.data?.stats || response?.data?.data;
+    },
+    staleTime: 1000 * 60,
+    refetchInterval: 1000 * 60 * 5,
+  });

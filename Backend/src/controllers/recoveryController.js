@@ -1,372 +1,273 @@
-const RecoveryPlan = require('../models/RecoveryPlan');
-const RehabExercise = require('../models/RehabExercise');
-const RecoveryProgress = require('../models/RecoveryProgress');
+const recoveryService = require('../services/recoveryService');
+const { sendSuccess, sendCreated, sendPaginated } = require('../utils/apiResponse');
+const { asyncHandler } = require('../utils/helpers');
 
-/*
-|--------------------------------------------------------------------------
-| Recovery Plans
-|--------------------------------------------------------------------------
-*/
+/**
+ * Recovery Controller — thin wrappers around recoveryService.
+ */
 
-exports.getRecoveryPlans = async (req, res) => {
-  try {
-    const { athleteId } = req.query;
+// ═══════════════════════════════════════════════════════════════════════════
+// Recovery Cases
+// ═══════════════════════════════════════════════════════════════════════════
 
-    const plans = await RecoveryPlan.find({
-      athleteId,
-    })
-      .populate('exercises')
-      .sort({ createdAt: -1 });
+/**
+ * @route   GET /api/v1/recovery/cases
+ * @desc    Get all recovery cases with filters
+ * @access  Physiotherapist, Coach
+ */
+const getRecoveryCases = asyncHandler(async (req, res) => {
+  const { cases, pagination } = await recoveryService.getRecoveryCases(
+    req.query
+  );
+  sendPaginated(res, 'Recovery cases retrieved', cases, pagination);
+});
 
-    res.json({
-      success: true,
-      data: plans,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   GET /api/v1/recovery/cases/:id
+ * @desc    Get a specific recovery case
+ * @access  Physiotherapist, Coach, Athlete
+ */
+const getRecoveryCaseById = asyncHandler(async (req, res) => {
+  const recoveryCase = await recoveryService.getRecoveryCaseById(
+    req.params.id
+  );
+  sendSuccess(res, 'Recovery case retrieved', { recoveryCase });
+});
 
-exports.getRecoveryPlan = async (req, res) => {
-  try {
-    const plan = await RecoveryPlan.findById(
-      req.params.id
-    ).populate('exercises');
+/**
+ * @route   GET /api/v1/recovery/athlete/:athleteId
+ * @desc    Get recovery cases for an athlete
+ * @access  Physiotherapist, Athlete
+ */
+const getAthleteRecoveryCases = asyncHandler(async (req, res) => {
+  const cases = await recoveryService.getAthleteRecoveryCases(
+    req.params.athleteId
+  );
+  sendSuccess(res, 'Athlete recovery cases retrieved', { cases });
+});
 
-    res.json({
-      success: true,
-      data: plan,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   POST /api/v1/recovery/cases
+ * @desc    Create a new recovery case
+ * @access  Physiotherapist
+ */
+const createRecoveryCase = asyncHandler(async (req, res) => {
+  const recoveryCase = await recoveryService.createRecoveryCase(req.body);
+  sendCreated(res, 'Recovery case created', { recoveryCase });
+});
 
-exports.createRecoveryPlan = async (
-  req,
-  res
-) => {
-  try {
-    const plan = await RecoveryPlan.create(
-      req.body
-    );
+/**
+ * @route   PATCH /api/v1/recovery/cases/:id
+ * @desc    Update a recovery case
+ * @access  Physiotherapist
+ */
+const updateRecoveryCase = asyncHandler(async (req, res) => {
+  const recoveryCase = await recoveryService.updateRecoveryCase(
+    req.params.id,
+    req.body
+  );
+  sendSuccess(res, 'Recovery case updated', { recoveryCase });
+});
 
-    res.status(201).json({
-      success: true,
-      data: plan,
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   PATCH /api/v1/recovery/cases/:id/phase
+ * @desc    Update recovery phase
+ * @access  Physiotherapist
+ */
+const updateRecoveryPhase = asyncHandler(async (req, res) => {
+  const { phase, notes } = req.body;
+  const recoveryCase = await recoveryService.updateRecoveryPhase(
+    req.params.id,
+    phase,
+    notes
+  );
+  sendSuccess(res, 'Recovery phase updated', { recoveryCase });
+});
 
-exports.updateRecoveryPlan = async (
-  req,
-  res
-) => {
-  try {
-    const plan =
-      await RecoveryPlan.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
+/**
+ * @route   GET /api/v1/recovery/rtp-candidates
+ * @desc    Get RTP candidates
+ * @access  Physiotherapist
+ */
+const getRTPCandidates = asyncHandler(async (req, res) => {
+  const candidates = await recoveryService.getRTPCandidates(req.query);
+  sendSuccess(res, 'RTP candidates retrieved', { candidates });
+});
 
-    res.json({
-      success: true,
-      data: plan,
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   POST /api/v1/recovery/cases/:id/approve-rtp
+ * @desc    Approve return to play
+ * @access  Physiotherapist
+ */
+const approveRTP = asyncHandler(async (req, res) => {
+  const { notes } = req.body;
+  const recoveryCase = await recoveryService.approveRTP(req.params.id, notes);
+  sendSuccess(res, 'RTP approved', { recoveryCase });
+});
 
-exports.deleteRecoveryPlan = async (
-  req,
-  res
-) => {
-  try {
-    await RecoveryPlan.findByIdAndDelete(
-      req.params.id
-    );
+// ═══════════════════════════════════════════════════════════════════════════
+// Recovery Progress
+// ═══════════════════════════════════════════════════════════════════════════
 
-    res.json({
-      success: true,
-      message: 'Plan deleted',
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   GET /api/v1/recovery/progress/:caseId
+ * @desc    Get progress entries for a case
+ * @access  Physiotherapist, Athlete
+ */
+const getProgressEntries = asyncHandler(async (req, res) => {
+  const entries = await recoveryService.getProgressEntries(
+    req.params.caseId,
+    req.query
+  );
+  sendSuccess(res, 'Progress entries retrieved', { entries });
+});
 
-/*
-|--------------------------------------------------------------------------
-| Exercises
-|--------------------------------------------------------------------------
-*/
+/**
+ * @route   POST /api/v1/recovery/:caseId/progress
+ * @desc    Create a progress entry
+ * @access  Athlete, Physiotherapist
+ */
+const createProgressEntry = asyncHandler(async (req, res) => {
+  const entry = await recoveryService.createProgressEntry(
+    req.params.caseId,
+    req.body
+  );
+  sendCreated(res, 'Progress entry created', { entry });
+});
 
-exports.getExercises = async (
-  req,
-  res
-) => {
-  try {
-    const exercises =
-      await RehabExercise.find();
+/**
+ * @route   GET /api/v1/recovery/:caseId/pain-trend
+ * @desc    Get pain trend data
+ * @access  Physiotherapist
+ */
+const getPainTrend = asyncHandler(async (req, res) => {
+  const { days = 7 } = req.query;
+  const trend = await recoveryService.getPainTrend(req.params.caseId, days);
+  sendSuccess(res, 'Pain trend retrieved', { trend });
+});
 
-    res.json({
-      success: true,
-      data: exercises,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   GET /api/v1/recovery/:caseId/progress-summary
+ * @desc    Get overall progress summary
+ * @access  Physiotherapist, Athlete
+ */
+const getRecoveryProgress = asyncHandler(async (req, res) => {
+  const progress = await recoveryService.getRecoveryProgress(req.params.caseId);
+  sendSuccess(res, 'Recovery progress retrieved', { progress });
+});
 
-exports.getExercise = async (
-  req,
-  res
-) => {
-  try {
-    const exercise =
-      await RehabExercise.findById(
-        req.params.id
-      );
+// ═══════════════════════════════════════════════════════════════════════════
+// Exercises
+// ═══════════════════════════════════════════════════════════════════════════
 
-    res.json({
-      success: true,
-      data: exercise,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   GET /api/v1/recovery/:caseId/exercises
+ * @desc    Get exercises for a recovery case
+ * @access  Physiotherapist, Athlete
+ */
+const getExercisesForCase = asyncHandler(async (req, res) => {
+  const exercises = await recoveryService.getExercisesForCase(req.params.caseId);
+  sendSuccess(res, 'Exercises retrieved', { exercises });
+});
 
-exports.createExercise = async (
-  req,
-  res
-) => {
-  try {
-    const exercise =
-      await RehabExercise.create(
-        req.body
-      );
+/**
+ * @route   POST /api/v1/recovery/:caseId/exercises
+ * @desc    Create an exercise
+ * @access  Physiotherapist
+ */
+const createExercise = asyncHandler(async (req, res) => {
+  const exercise = await recoveryService.createExercise({
+    athleteId: req.params.caseId,
+    ...req.body,
+  });
+  sendCreated(res, 'Exercise created', { exercise });
+});
 
-    res.status(201).json({
-      success: true,
-      data: exercise,
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   PATCH /api/v1/recovery/exercises/:exerciseId
+ * @desc    Update an exercise
+ * @access  Physiotherapist
+ */
+const updateExercise = asyncHandler(async (req, res) => {
+  const exercise = await recoveryService.updateExercise(
+    req.params.exerciseId,
+    req.body
+  );
+  sendSuccess(res, 'Exercise updated', { exercise });
+});
 
-exports.updateExercise = async (
-  req,
-  res
-) => {
-  try {
-    const exercise =
-      await RehabExercise.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
+/**
+ * @route   POST /api/v1/recovery/exercises/:exerciseId/complete
+ * @desc    Mark exercise as completed
+ * @access  Athlete
+ */
+const completeExercise = asyncHandler(async (req, res) => {
+  const exercise = await recoveryService.completeExercise(
+    req.params.exerciseId,
+    req.body
+  );
+  sendSuccess(res, 'Exercise completed', { exercise });
+});
 
-    res.json({
-      success: true,
-      data: exercise,
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   DELETE /api/v1/recovery/exercises/:exerciseId
+ * @desc    Delete an exercise
+ * @access  Physiotherapist
+ */
+const deleteExercise = asyncHandler(async (req, res) => {
+  const result = await recoveryService.deleteExercise(req.params.exerciseId);
+  sendSuccess(res, 'Exercise deleted', result);
+});
 
-exports.completeExercise = async (
-  req,
-  res
-) => {
-  try {
-    const exercise =
-      await RehabExercise.findByIdAndUpdate(
-        req.params.id,
-        {
-          completed: true,
-          completedAt: new Date(),
-        },
-        { new: true }
-      );
+// ═══════════════════════════════════════════════════════════════════════════
+// Analytics & Alerts
+// ═══════════════════════════════════════════════════════════════════════════
 
-    res.json({
-      success: true,
-      data: exercise,
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+/**
+ * @route   GET /api/v1/recovery/alerts
+ * @desc    Get alerts for physiotherapist
+ * @access  Physiotherapist
+ */
+const getAlerts = asyncHandler(async (req, res) => {
+  const alerts = await recoveryService.getAlerts(req.user._id);
+  sendSuccess(res, 'Alerts retrieved', { alerts });
+});
 
-exports.deleteExercise = async (
-  req,
-  res
-) => {
-  try {
-    await RehabExercise.findByIdAndDelete(
-      req.params.id
-    );
+/**
+ * @route   GET /api/v1/recovery/stats
+ * @desc    Get dashboard statistics
+ * @access  Physiotherapist
+ */
+const getDashboardStats = asyncHandler(async (req, res) => {
+  const stats = await recoveryService.getDashboardStats(req.user._id);
+  sendSuccess(res, 'Dashboard stats retrieved', { stats });
+});
 
-    res.json({
-      success: true,
-      message: 'Exercise deleted',
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
+module.exports = {
+  // Recovery Cases
+  getRecoveryCases,
+  getRecoveryCaseById,
+  getAthleteRecoveryCases,
+  createRecoveryCase,
+  updateRecoveryCase,
+  updateRecoveryPhase,
+  getRTPCandidates,
+  approveRTP,
 
-/*
-|--------------------------------------------------------------------------
-| Progress
-|--------------------------------------------------------------------------
-*/
+  // Progress
+  getProgressEntries,
+  createProgressEntry,
+  getPainTrend,
+  getRecoveryProgress,
 
-exports.getProgressEntries = async (
-  req,
-  res
-) => {
-  try {
-    const progress =
-      await RecoveryProgress.find();
+  // Exercises
+  getExercisesForCase,
+  createExercise,
+  updateExercise,
+  completeExercise,
+  deleteExercise,
 
-    res.json({
-      success: true,
-      data: progress,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
-
-exports.getProgressEntry = async (
-  req,
-  res
-) => {
-  try {
-    const progress =
-      await RecoveryProgress.findById(
-        req.params.id
-      );
-
-    res.json({
-      success: true,
-      data: progress,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
-
-exports.createProgressEntry = async (
-  req,
-  res
-) => {
-  try {
-    const progress =
-      await RecoveryProgress.create(
-        req.body
-      );
-
-    res.status(201).json({
-      success: true,
-      data: progress,
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
-
-exports.updateProgressEntry = async (
-  req,
-  res
-) => {
-  try {
-    const progress =
-      await RecoveryProgress.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
-
-    res.json({
-      success: true,
-      data: progress,
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-};
-
-exports.deleteProgressEntry = async (
-  req,
-  res
-) => {
-  try {
-    await RecoveryProgress.findByIdAndDelete(
-      req.params.id
-    );
-
-    res.json({
-      success: true,
-      message: 'Progress deleted',
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
+  // Analytics
+  getAlerts,
+  getDashboardStats,
 };

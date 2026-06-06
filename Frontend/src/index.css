@@ -6,90 +6,89 @@
   * { box-sizing: border-box; }
   html, body, #root {
     height: 100%;
-    background-color: #0a0e1a;
-    color: #e8edf7;
+    background-color: #000000;
+    color: #f8fafc;
   }
   body {
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
-  input[type='range'] { accent-color: #00d4aa; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  input[type='range'] { accent-color: #10b981; }
 }
 
 @layer components {
   .card {
     @apply bg-apex-bg2 border border-apex-border rounded-apex-lg p-4
-           transition-colors duration-200 hover:border-apex-border2;
+           transition-colors duration-200;
   }
   .stat-card {
-    @apply bg-apex-bg3 border border-apex-border rounded-apex p-4
-           transition-all duration-200 hover:border-apex-border2
-           hover:bg-apex-bg4 hover:-translate-y-px cursor-default;
+    @apply bg-apex-bg2 border border-apex-border rounded-apex-lg p-4
+           transition-all duration-200 hover:border-apex-border2 cursor-default;
   }
   .btn-primary {
-    @apply bg-apex-green text-apex-bg font-display font-bold text-sm
+    @apply bg-apex-green text-black font-display font-semibold text-sm
            px-4 py-2 rounded-apex transition-all duration-150
-           hover:bg-teal-400 hover:-translate-y-px active:scale-95
+           hover:bg-emerald-400 hover:-translate-y-px active:scale-95
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-secondary {
-    @apply bg-apex-green/10 border border-apex-green/30 text-apex-green
-           font-semibold text-xs px-3 py-2 rounded-apex
-           transition-all duration-150 hover:bg-apex-green/20
+    @apply bg-transparent border border-apex-border text-apex-txt
+           font-medium text-sm px-4 py-2 rounded-apex
+           transition-all duration-150 hover:bg-apex-bg3 hover:border-apex-border2
            active:scale-95;
   }
   .btn-ghost {
-    @apply bg-apex-bg3 border border-apex-border text-apex-txt2
-           text-xs px-3 py-2 rounded-apex
-           transition-all duration-150 hover:border-apex-border2
-           hover:text-apex-txt active:scale-95;
+    @apply bg-transparent border border-transparent text-apex-txt2
+           font-medium text-sm px-4 py-2 rounded-apex
+           transition-all duration-150 hover:bg-apex-bg3 hover:text-apex-txt
+           active:scale-95;
   }
   .filter-pill {
-    @apply px-3 py-1 rounded-lg border text-xs font-medium
+    @apply px-4 py-1.5 rounded-full border text-xs font-medium
            transition-all duration-150 cursor-pointer;
   }
   .filter-pill-inactive {
-    @apply filter-pill border-apex-border bg-apex-bg3 text-apex-txt2
-           hover:border-apex-border2 hover:text-apex-txt;
+    @apply filter-pill border-transparent bg-apex-bg3 text-apex-txt2
+           hover:bg-apex-bg4 hover:text-apex-txt;
   }
   .filter-pill-active {
-    @apply filter-pill border-apex-green/30 bg-apex-green/10 text-apex-green;
+    @apply filter-pill border-transparent bg-apex-txt text-black;
   }
   .input-field {
-    @apply w-full bg-apex-bg3 border border-apex-border rounded-apex
-           px-3 py-2.5 text-apex-txt text-sm outline-none
+    @apply w-full bg-apex-bg3 border border-apex-border rounded-full
+           px-4 py-2 text-apex-txt text-sm outline-none
            transition-all duration-150
-           focus:border-apex-green/50 focus:ring-2 focus:ring-apex-green/10
+           focus:border-apex-green focus:ring-1 focus:ring-apex-green
            placeholder:text-apex-txt3;
   }
   .nav-item {
-    @apply flex items-center gap-2.5 px-3 py-2.5 rounded-apex
-           cursor-pointer mb-0.5 transition-all duration-150
-           border border-transparent text-sm text-apex-txt2
-           hover:bg-apex-bg3 hover:text-apex-txt;
+    @apply flex items-center gap-3 px-3 py-2 rounded-apex
+           cursor-pointer mb-1 transition-all duration-150
+           border-l-2 border-transparent text-sm text-apex-txt2 font-medium
+           hover:text-apex-txt hover:bg-apex-bg3;
   }
   .nav-item-active {
-    @apply nav-item bg-apex-green/10 border-apex-green/25 text-apex-green;
+    @apply nav-item bg-apex-bg3 border-l-2 border-apex-green text-apex-txt;
   }
   .tag {
     @apply text-[10px] font-semibold px-2 py-0.5 rounded
-           uppercase tracking-wider inline-block border;
+           uppercase tracking-wider inline-block;
   }
   .skeleton {
     @apply rounded animate-shimmer;
-    background: linear-gradient(90deg, #131d32 25%, #182038 50%, #131d32 75%);
+    background: linear-gradient(90deg, #121214 25%, #18181b 50%, #121214 75%);
     background-size: 200% 100%;
   }
   .topbar-icon-btn {
-    @apply w-8 h-8 bg-apex-bg3 border border-apex-border rounded-apex
+    @apply w-9 h-9 bg-transparent border border-transparent rounded-full
            flex items-center justify-center cursor-pointer
-           transition-all duration-150 text-sm flex-shrink-0
-           hover:border-apex-border2 hover:bg-apex-bg4;
+           transition-all duration-150 text-apex-txt2 flex-shrink-0
+           hover:bg-apex-bg3 hover:text-apex-txt;
   }
   .progress-bar-track {
     @apply h-1.5 bg-apex-bg4 rounded-full overflow-hidden;
@@ -103,22 +102,4 @@
   .font-display { font-family: 'Space Grotesk', system-ui, sans-serif; }
   .text-balance { text-wrap: balance; }
   .dot-pulse { animation: pulseDot 2s ease-in-out infinite; }
-  @keyframes pulseDot {
-    0%,100% { opacity:1; transform:scale(1); }
-    50%      { opacity:.5; transform:scale(1.2); }
-  }
-}
-.card-glow-green {
-  box-shadow:
-    0 0 30px rgba(34,197,94,.15);
-}
-
-.card-glow-blue {
-  box-shadow:
-    0 0 30px rgba(59,130,246,.15);
-}
-
-.card-glow-purple {
-  box-shadow:
-    0 0 30px rgba(168,85,247,.15);
 }

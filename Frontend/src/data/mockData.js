@@ -54,11 +54,11 @@ export const RADAR_DATA = [
 ]
 
 export const INJURY_TYPES = [
-  { name: 'Muscle Strain', value: 35, color: '#ff5f6d' },
-  { name: 'Joint Sprain',  value: 28, color: '#ffb347' },
-  { name: 'Tendon Issue',  value: 18, color: '#4a9eff' },
-  { name: 'Contusion',     value: 12, color: '#a78bfa' },
-  { name: 'Other',         value: 7,  color: '#4a5568' },
+  { name: 'Muscle Strain', value: 35, color: '#ef4444' },
+  { name: 'Joint Sprain',  value: 28, color: '#f97316' },
+  { name: 'Tendon Issue',  value: 18, color: '#3b82f6' },
+  { name: 'Contusion',     value: 12, color: '#8b5cf6' },
+  { name: 'Other',         value: 7,  color: '#71717a' },
 ]
 
 export const MONTHLY_INJURY = [
@@ -78,23 +78,23 @@ export const NOTIFICATIONS = [
 ]
 
 export const AI_INSIGHTS = [
-  { id: 1, title: 'Recovery Pattern Analysis', score: 92, tags: ['Sleep','HRV','Trend'],   color: '#00d4aa',
+  { id: 1, title: 'Recovery Pattern Analysis', score: 92, tags: ['Sleep','HRV','Trend'],   color: '#10b981',
     summary: 'Recovery consistency improved 18% over 3 weeks. Sleep quality is the strongest predictor of next-day performance.' },
-  { id: 2, title: 'Injury Risk Forecast',      score: 24, tags: ['Injury','Load','Alert'], color: '#ffb347',
+  { id: 2, title: 'Injury Risk Forecast',      score: 24, tags: ['Injury','Load','Alert'], color: '#f97316',
     summary: 'Current risk is LOW. Left quad fatigue detected — recommend 2 days reduced loading before next HIT session.' },
-  { id: 3, title: 'Performance Readiness',     score: 88, tags: ['Performance','Peak'],    color: '#4a9eff',
+  { id: 3, title: 'Performance Readiness',     score: 88, tags: ['Performance','Peak'],    color: '#3b82f6',
     summary: 'Top 15% of team for readiness this week. Optimal window for peak performance: next 48 hours.' },
-  { id: 4, title: 'Nutrition & Hydration',     score: 76, tags: ['Nutrition','Recovery'],  color: '#a78bfa',
+  { id: 4, title: 'Nutrition & Hydration',     score: 76, tags: ['Nutrition','Recovery'],  color: '#8b5cf6',
     summary: 'Hydration 8% below optimal on training days. Consider electrolyte supplementation post-session.' },
 ]
 
 export const TIMELINE_EVENTS = [
-  { date: 'Today',     title: 'Recovery Score: 88',      color: '#00d4aa', detail: 'Season-high readiness. HRV optimal.' },
-  { date: 'Yesterday', title: 'Daily Check-in Complete', color: '#4a9eff', detail: 'Mild quad soreness reported.' },
-  { date: 'Jun 1',     title: 'High-Intensity Session',  color: '#ffb347', detail: 'Sprint intervals — 540 AU load.' },
-  { date: 'May 31',    title: 'Recovery Day',            color: '#a78bfa', detail: 'Cryotherapy + 30min mobility.' },
-  { date: 'May 30',    title: 'Match Day',               color: '#ff5f6d', detail: '90 min · Excellent performance.' },
-  { date: 'May 28',    title: 'Injury Alert Cleared',    color: '#00d4aa', detail: 'Left quad monitoring concluded.' },
+  { date: 'Today',     title: 'Recovery Score: 88',      color: '#10b981', detail: 'Season-high readiness. HRV optimal.' },
+  { date: 'Yesterday', title: 'Daily Check-in Complete', color: '#3b82f6', detail: 'Mild quad soreness reported.' },
+  { date: 'Jun 1',     title: 'High-Intensity Session',  color: '#f97316', detail: 'Sprint intervals — 540 AU load.' },
+  { date: 'May 31',    title: 'Recovery Day',            color: '#8b5cf6', detail: 'Cryotherapy + 30min mobility.' },
+  { date: 'May 30',    title: 'Match Day',               color: '#ef4444', detail: '90 min · Excellent performance.' },
+  { date: 'May 28',    title: 'Injury Alert Cleared',    color: '#10b981', detail: 'Left quad monitoring concluded.' },
 ]
 
 export const PAIN_TREND = [
@@ -111,21 +111,21 @@ export const REHAB_PHASES = [
 ]
 
 export const WEARABLES = [
-  { id: 1, name: 'WHOOP 4.0',         icon: '⌚', status: 'synced',  last: '2 min ago', battery: 82, color: '#00d4aa' },
-  { id: 2, name: 'Garmin Forerunner', icon: '⌚', status: 'synced',  last: '5 min ago', battery: 67, color: '#4a9eff' },
-  { id: 3, name: 'Oura Ring',         icon: '💍', status: 'offline', last: '2h ago',    battery: 15, color: '#ffb347' },
+  { id: 1, name: 'WHOOP 4.0',         icon: '⌚', status: 'synced',  last: '2 min ago', battery: 82, color: '#10b981' },
+  { id: 2, name: 'Garmin Forerunner', icon: '⌚', status: 'synced',  last: '5 min ago', battery: 67, color: '#3b82f6' },
+  { id: 3, name: 'Oura Ring',         icon: '💍', status: 'offline', last: '2h ago',    battery: 15, color: '#f97316' },
 ]
 
 export const AI_RECOMMENDATIONS = [
-  { icon: '💤', text: '10pm–6am sleep window for optimal recovery', tag: 'Sleep',    color: '#4a9eff' },
-  { icon: '🏃', text: 'Zone 2 aerobic session, 30min — light load', tag: 'Training', color: '#00d4aa' },
-  { icon: '💧', text: 'Increase hydration by 500ml today',          tag: 'Nutrition',color: '#a78bfa' },
-  { icon: '🧘', text: '15min mobility work for left quad',          tag: 'Recovery', color: '#ffb347' },
+  { icon: '💤', text: '10pm–6am sleep window for optimal recovery', tag: 'Sleep',    color: '#3b82f6' },
+  { icon: '🏃', text: 'Zone 2 aerobic session, 30min — light load', tag: 'Training', color: '#10b981' },
+  { icon: '💧', text: 'Increase hydration by 500ml today',          tag: 'Nutrition',color: '#8b5cf6' },
+  { icon: '🧘', text: '15min mobility work for left quad',          tag: 'Recovery', color: '#f97316' },
 ]
 
 export const STREAK_STATS = [
-  { label: 'Current Streak',   value: '12 days', color: '#00d4aa' },
-  { label: 'Best Streak',      value: '24 days', color: '#4a9eff' },
-  { label: 'Sessions / Month', value: '18',      color: '#a78bfa' },
-  { label: 'Check-in Rate',    value: '92%',     color: '#ffb347' },
+  { label: 'Current Streak',   value: '12 days', color: '#10b981' },
+  { label: 'Best Streak',      value: '24 days', color: '#3b82f6' },
+  { label: 'Sessions / Month', value: '18',      color: '#8b5cf6' },
+  { label: 'Check-in Rate',    value: '92%',     color: '#f97316' },
 ]

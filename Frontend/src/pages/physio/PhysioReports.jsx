@@ -1,7 +1,7 @@
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import ReportsPage from '../ReportsPage';
 
-export default function AthleteReports() {
+export default function PhysioReports() {
   return (
     <DashboardLayout>
       <div className="p-8 space-y-6">
